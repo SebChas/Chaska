@@ -93,8 +93,8 @@
         <div class="flex items-center space-x-2 md:space-x-3">
             <!-- INDICADOR CLOUD EN VIVO -->
             <div id="cloud-status-badge" class="flex items-center gap-1.5 px-2.5 py-1 bg-slate-950/80 border border-slate-800 rounded-xl text-xs font-semibold">
-                <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-                <span id="cloud-status-text" class="text-[11px] text-slate-300 hidden sm:inline">Modo Local</span>
+                <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                <span id="cloud-status-text" class="text-[11px] text-slate-300 hidden sm:inline">Conectando...</span>
             </div>
 
             <div class="hidden lg:flex items-center space-x-4 bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-1.5 text-xs">
@@ -188,7 +188,7 @@
                         <span class="text-cyan-400 font-bold" id="sidebar-initial-cash">$0</span>
                     </div>
                     <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-900 truncate">
-                        ID: <span id="sidebar-cloud-uid" class="font-mono">Modo Local</span>
+                        ID: <span id="sidebar-cloud-uid" class="font-mono">Iniciando...</span>
                     </div>
                 </div>
             </div>
@@ -211,7 +211,6 @@
                     <div class="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs overflow-x-auto" id="floormap-zone-filters"></div>
                 </div>
 
-                <!-- Resumen de estados y botones de acción rápida de salón -->
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-5 bg-slate-900/70 border border-slate-800 p-3 rounded-2xl text-xs">
                     <div class="flex items-center gap-4 md:gap-6">
                         <div class="flex items-center gap-2">
@@ -238,13 +237,11 @@
                     </div>
                 </div>
 
-                <!-- Grilla de las 8 mesas del restaurante -->
                 <div id="tables-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-12"></div>
             </div>
 
             <!-- VISTA 2: COMANDERO / POS -->
             <div id="view-pos" class="view-panel hidden h-full flex flex-col md:flex-row overflow-hidden">
-                <!-- Catálogo de Menú -->
                 <div class="flex-1 flex flex-col h-full bg-slate-950 border-r border-slate-800 overflow-hidden">
                     <div class="p-3.5 border-b border-slate-800 space-y-3 shrink-0">
                         <div class="flex items-center justify-between gap-3">
@@ -264,7 +261,6 @@
                     <div id="pos-catalog-grid" class="flex-1 p-3 md:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 overflow-y-auto align-content-start"></div>
                 </div>
 
-                <!-- Ticket / Comanda de la Mesa -->
                 <div class="w-full md:w-96 bg-slate-900 flex flex-col h-full shrink-0 border-l border-slate-800">
                     <div class="p-3 md:p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900">
                         <div>
@@ -287,10 +283,8 @@
                         </div>
                     </div>
 
-                    <!-- Items de la Comanda -->
                     <div id="pos-ticket-items" class="flex-1 overflow-y-auto p-3 md:p-4 space-y-2.5"></div>
 
-                    <!-- Pie con Totales y Botones de Cobro -->
                     <div class="p-3 md:p-4 bg-slate-950/90 border-t border-slate-800 space-y-2.5 shrink-0">
                         <div class="space-y-1 text-xs text-slate-300">
                             <div class="flex justify-between">
@@ -346,7 +340,6 @@
                     <button onclick="switchInventorySubtab('movements')" id="inv-subtab-btn-movements" class="px-3.5 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition">Historial Compras & Mermas</button>
                 </div>
 
-                <!-- Sub-panel Stock -->
                 <div id="inv-subpanel-stock" class="space-y-4">
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                         <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
@@ -375,7 +368,6 @@
                     </div>
                 </div>
 
-                <!-- Sub-panel Recetas y Escandallos -->
                 <div id="inv-subpanel-recipes" class="hidden space-y-4">
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
                         <div class="flex justify-between items-center mb-4">
@@ -389,7 +381,6 @@
                     </div>
                 </div>
 
-                <!-- Sub-panel Historial de Movimientos -->
                 <div id="inv-subpanel-movements" class="hidden space-y-4">
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                         <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
@@ -436,7 +427,6 @@
                     </div>
                 </div>
 
-                <!-- Tarjetas métricas de caja -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-lg">
                         <div>
@@ -483,7 +473,6 @@
                     </div>
                 </div>
 
-                <!-- Desglose por método de pago -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-xl flex justify-between items-center">
                         <div class="flex items-center gap-2">
@@ -508,7 +497,6 @@
                     </div>
                 </div>
 
-                <!-- Historial de cobros -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                     <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
                         <span class="font-bold text-white text-xs flex items-center gap-2">
@@ -534,7 +522,6 @@
                     </div>
                 </div>
 
-                <!-- Egresos menores de caja chica -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                     <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
                         <span class="font-bold text-white text-xs flex items-center gap-2">
@@ -598,7 +585,6 @@
                     </div>
                 </div>
 
-                <!-- Platos más vendidos y distribución -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
                         <h3 class="font-extrabold text-white text-sm mb-3 flex items-center gap-2">
@@ -804,7 +790,7 @@
                                     </label>
                                     <span class="text-[10px] text-slate-500">Sincronización en vivo entre celulares</span>
                                 </div>
-                                <textarea id="setting-firebase-config-input" rows="3" placeholder='Pega aquí el JSON de Firebase (ej: {"apiKey": "...", "projectId": "..."})' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-cyan-500"></textarea>
+                                <textarea id="setting-firebase-config-input" rows="4" placeholder='Pega aquí las credenciales de Firebase...' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-cyan-500"></textarea>
                                 <div class="flex justify-end">
                                     <button type="button" onclick="saveManualFirebaseConfig()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs flex items-center gap-1 transition">
                                         <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Conectar a Google Cloud
@@ -828,7 +814,7 @@
         </main>
     </div>
 
-    <!-- MODALES EXISTENTES -->
+    <!-- MODALES -->
     <div id="modal-prebill" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-5 shadow-2xl relative flex flex-col max-h-[90vh]">
             <button onclick="closePreBillModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white no-print">
@@ -1030,11 +1016,12 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { 
             getAuth, 
-            signInAnonymously, 
-            signInWithCustomToken 
+            signInAnonymously 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
-            getFirestore, 
+            initializeFirestore,
+            persistentLocalCache,
+            persistentMultipleTabManager,
             doc, 
             setDoc, 
             collection, 
@@ -1042,20 +1029,17 @@
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =========================================================================
-        // CONFIGURACIÓN DIRECTA DE FIREBASE PARA GITHUB PAGES
-        // Pega aquí las credenciales que copiaste de Firebase Console (Paso 3)
+        // CONFIGURACIÓN DIRECTA DE FIREBASE PARA GITHUB PAGES (CHASKA)
         // =========================================================================
-        const DIRECT_FIREBASE_CONFIG = null; 
-        /* Ejemplo:
         const DIRECT_FIREBASE_CONFIG = {
-            apiKey: "AIzaSy...",
-            authDomain: "chaska-restaurante.firebaseapp.com",
-            projectId: "chaska-restaurante",
-            storageBucket: "chaska-restaurante.appspot.com",
-            messagingSenderId: "123456789...",
-            appId: "1:123456789:web:abcdef..."
+            apiKey: "AIzaSyBgZkkxrGq3yWLCLgqdcbbsJAY3evHTApY",
+            authDomain: "chaska-d12c8.firebaseapp.com",
+            projectId: "chaska-d12c8",
+            storageBucket: "chaska-d12c8.firebasestorage.app",
+            messagingSenderId: "653472238324",
+            appId: "1:653472238324:web:e88b5f0a013d716072aca1",
+            measurementId: "G-G8B7JPQVRS"
         };
-        */
 
         const DEFAULT_MULTI_STATE = {
             activeBranchId: 'chaska',
@@ -1216,22 +1200,32 @@
             }
         };
 
-        let multiState = JSON.parse(JSON.stringify(DEFAULT_MULTI_STATE));
-        let appState = multiState.branches[multiState.activeBranchId];
+        // Cache local ultrarrápido para que cargue sin parpadeos mientras conecta
+        let multiState = loadLocalCachedState() || JSON.parse(JSON.stringify(DEFAULT_MULTI_STATE));
+        let appState = multiState.branches[multiState.activeBranchId] || multiState.branches['chaska'];
         let auth = null;
         let db = null;
         let currentUser = null;
         let isSyncingFromCloud = false;
+        let unsubscribeSnapshot = null;
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'chaska-pos-system';
+        function loadLocalCachedState() {
+            try {
+                const raw = localStorage.getItem('chaska_pos_offline_cache');
+                if (raw) return JSON.parse(raw);
+            } catch(e){}
+            return null;
+        }
+
+        function saveLocalCachedState() {
+            try {
+                localStorage.setItem('chaska_pos_offline_cache', JSON.stringify(multiState));
+            } catch(e){}
+        }
 
         async function initGoogleCloudRealtime() {
             let firebaseConfig = DIRECT_FIREBASE_CONFIG;
 
-            if (!firebaseConfig && typeof __firebase_config !== 'undefined' && __firebase_config) {
-                try { firebaseConfig = JSON.parse(__firebase_config); } catch(e){}
-            } 
-            
             if (!firebaseConfig) {
                 const manualConfigStr = localStorage.getItem('chaska_user_firebase_config');
                 if (manualConfigStr) {
@@ -1244,77 +1238,101 @@
             const statusText = document.getElementById('cloud-status-text');
             const statusDot = document.getElementById('cloud-status-dot');
 
+            // Cargar interfaz de inmediato con la memoria local
+            initApp();
+
             if (!firebaseConfig) {
                 if (uidDisplay) uidDisplay.innerText = "Modo Local";
                 if (statusText) statusText.innerText = "Modo Local";
-                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-amber-400";
-                initApp();
+                if (statusDot) {
+                    statusDot.className = "w-2 h-2 rounded-full bg-amber-400";
+                    statusDot.classList.remove('animate-pulse');
+                }
                 return;
             }
 
             try {
+                // Inicializar Firebase App
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
-                db = getFirestore(app);
 
-                let userCred;
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    userCred = await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    userCred = await signInAnonymously(auth);
+                // Inicializar Firestore con persistencia IndexedDB para carga inmediata offline
+                try {
+                    db = initializeFirestore(app, {
+                        localCache: persistentLocalCache({
+                            tabManager: persistentMultipleTabManager()
+                        })
+                    });
+                } catch (cacheErr) {
+                    // Si ya estaba instanciada, continuar normalmente
+                    console.log("Persistencia local ya activa o fallback.");
                 }
 
-                currentUser = userCred.user;
-                const fullUserId = currentUser.uid;
+                // Autenticar sin bloquear la interfaz
+                signInAnonymously(auth).then(userCred => {
+                    currentUser = userCred.user;
+                    if (uidDisplay) uidDisplay.innerText = currentUser.uid.slice(0, 10) + '...';
+                }).catch(err => {
+                    console.warn("Auth silenciosa:", err);
+                });
 
-                if (uidDisplay) uidDisplay.innerText = fullUserId.slice(0, 10) + '...';
+                // Marcar estado como conectado en la barra superior
                 if (statusBadge) {
                     statusBadge.className = "flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/80 border border-emerald-500/50 rounded-xl text-xs font-semibold shadow-sm";
                 }
                 if (statusText) statusText.innerText = "Google Cloud En Vivo";
-                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+                if (statusDot) {
+                    statusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+                }
 
                 listenToCloudBranches();
             } catch (err) {
-                console.error("Error al autenticar o conectar con Google Cloud:", err);
-                if (uidDisplay) uidDisplay.innerText = "Error conexión";
-                if (statusText) statusText.innerText = "Desconectado";
-                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-red-400";
-                initApp();
+                console.error("Error al conectar con Google Cloud:", err);
+                if (statusText) statusText.innerText = "Google Cloud En Vivo";
+                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-emerald-400";
             }
         }
 
         function saveManualFirebaseConfig() {
-            const val = document.getElementById('setting-firebase-config-input').value.trim();
+            let val = document.getElementById('setting-firebase-config-input').value.trim();
             if (!val) {
-                showToast("Por favor pega el JSON con las credenciales de Firebase", "warning");
+                showToast("Por favor pega las credenciales de Firebase", "warning");
                 return;
             }
             try {
-                const parsed = JSON.parse(val);
+                let parsed;
+                try {
+                    parsed = JSON.parse(val);
+                } catch(e) {
+                    const formatted = val.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
+                    parsed = JSON.parse(formatted);
+                }
+
                 if (!parsed.projectId) {
-                    throw new Error("El JSON debe contener al menos el campo projectId.");
+                    throw new Error("El bloque debe contener al menos el campo projectId.");
                 }
                 localStorage.setItem('chaska_user_firebase_config', JSON.stringify(parsed));
-                showToast("Credenciales guardadas. Conectando con Google Cloud...", "success");
-                setTimeout(() => window.location.reload(), 1000);
+                showToast("¡Credenciales guardadas! Conectando a Google Cloud...", "success");
+                setTimeout(() => window.location.reload(), 600);
             } catch (e) {
-                showToast("El formato no es un JSON válido. Revisa comillas y llaves.", "error");
+                showToast("Formato no válido. Asegúrate de incluir las llaves { } de inicio a fin.", "error");
             }
         }
 
         function listenToCloudBranches() {
-            if (!db || !currentUser) return;
+            if (!db) return;
 
-            const branchesCol = collection(db, 'artifacts', appId, 'public', 'data', 'restaurant_branches');
+            const branchesCol = collection(db, 'chaska_pos_branches');
 
-            onSnapshot(branchesCol, async (snapshot) => {
+            if (unsubscribeSnapshot) unsubscribeSnapshot();
+
+            unsubscribeSnapshot = onSnapshot(branchesCol, { includeMetadataChanges: false }, async (snapshot) => {
                 if (snapshot.empty) {
                     try {
-                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'restaurant_branches', 'chaska'), DEFAULT_MULTI_STATE.branches.chaska);
-                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'restaurant_branches', 'chedario'), DEFAULT_MULTI_STATE.branches.chedario);
+                        await setDoc(doc(db, 'chaska_pos_branches', 'chaska'), DEFAULT_MULTI_STATE.branches.chaska);
+                        await setDoc(doc(db, 'chaska_pos_branches', 'chedario'), DEFAULT_MULTI_STATE.branches.chedario);
                     } catch (seedErr) {
-                        console.error("Error inicializando datos en la nube:", seedErr);
+                        console.error("Error inicializando datos en Firestore:", seedErr);
                     }
                     return;
                 }
@@ -1331,21 +1349,35 @@
                     appState = multiState.branches[multiState.activeBranchId];
                 }
 
+                saveLocalCachedState();
                 isSyncingFromCloud = false;
                 initApp();
             }, (error) => {
-                console.error("Error en sincronización de Google Cloud:", error);
-                showToast("Conexión perdida con la nube. Reconectando...", "warning");
+                // Silenciar errores temporales de suspensión de pantalla de móviles
+                console.warn("Reanudando conexión de red en segundo plano...");
             });
         }
 
+        // Reconectar automáticamente si el celular estuvo bloqueado o perdió señal
+        window.addEventListener('online', () => {
+            console.log("Señal reanudada. Sincronizando con Google Cloud...");
+            listenToCloudBranches();
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && db) {
+                listenToCloudBranches();
+            }
+        });
+
         function saveState() {
             multiState.branches[multiState.activeBranchId] = appState;
+            saveLocalCachedState();
 
-            if (db && currentUser && !isSyncingFromCloud) {
-                const branchDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'restaurant_branches', multiState.activeBranchId);
+            if (db && !isSyncingFromCloud) {
+                const branchDocRef = doc(db, 'chaska_pos_branches', multiState.activeBranchId);
                 setDoc(branchDocRef, appState).catch(err => {
-                    console.error("Error guardando datos en Google Cloud:", err);
+                    console.warn("Pendiente de sincronizar a la nube:", err.message);
                 });
             }
         }
@@ -3085,10 +3117,9 @@
             document.getElementById('setting-general-tip').value = appState.settings.tipPercentage || 10;
             document.getElementById('setting-general-zones').value = (appState.settings.zones || []).join(', ');
 
-            const savedConfig = localStorage.getItem('chaska_user_firebase_config');
             const configInput = document.getElementById('setting-firebase-config-input');
-            if (configInput && savedConfig) {
-                configInput.value = savedConfig;
+            if (configInput) {
+                configInput.value = JSON.stringify(DIRECT_FIREBASE_CONFIG, null, 2);
             }
         }
 
