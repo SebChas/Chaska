@@ -42,7 +42,6 @@
         ::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.6); border-radius: 9999px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(249, 115, 22, 0.5); }
 
-        /* Estilo base unificado para controles de formulario */
         .form-input-base {
             width: 100%;
             background-color: #020617;
@@ -78,10 +77,10 @@
 </head>
 <body class="bg-slate-950 text-slate-100 h-full flex flex-col overflow-hidden selection:bg-chaska-500 selection:text-white">
 
-    <!-- HEADER SUPERIOR UNIFICADO -->
+    <!-- HEADER SUPERIOR -->
     <header class="bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 px-3 md:px-5 py-2.5 flex items-center justify-between shrink-0 z-20">
         
-        <!-- ZONA IZQUIERDA: SELECTOR RESTAURANTE + IDENTIFICACIÓN DE USUARIO (MISMO ESTILO VISUAL) -->
+        <!-- ZONA IZQUIERDA: SELECTOR RESTAURANTE + IDENTIFICACIÓN DE USUARIO -->
         <div class="flex items-center gap-2 md:gap-3">
             <!-- 1. SELECTOR DE RESTAURANTE -->
             <div class="relative flex items-center">
@@ -113,7 +112,7 @@
                 </div>
             </div>
 
-            <!-- 2. IDENTIFICACIÓN DE USUARIO (MOZO / CAJERO / ADMIN) CON EL MISMO DISEÑO -->
+            <!-- 2. IDENTIFICACIÓN DE USUARIO (MOZO / CAJERO / ADMIN) -->
             <button id="user-identity-button" onclick="openUserLoginModal()" class="flex items-center gap-2.5 p-1.5 md:p-2 bg-slate-950/80 hover:bg-slate-800/80 border border-slate-800 hover:border-chaska-500/50 rounded-2xl transition group shadow-sm" title="Identificarse / Cambiar de Mozo">
                 <div id="header-user-avatar" class="bg-gradient-to-tr from-slate-700 to-slate-600 group-hover:from-chaska-600 group-hover:to-amber-500 w-9 h-9 md:w-10 md:h-10 rounded-xl text-white shadow-md flex items-center justify-center font-extrabold text-xs md:text-sm shrink-0 transition">
                     AD
@@ -131,15 +130,15 @@
             </button>
         </div>
 
-        <!-- ZONA DERECHA: ESTADO DE NUBE, MÉTRICAS Y ACCIONES RÁPIDAS -->
+        <!-- ZONA DERECHA: ESTADO NUBE, METRICAS Y ACCIONES RAPIDAS -->
         <div class="flex items-center space-x-2 md:space-x-3">
-            <!-- INDICADOR CLOUD EN VIVO -->
+            <!-- INDICADOR CLOUD -->
             <div id="cloud-status-badge" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-xl text-xs font-semibold">
                 <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                 <span id="cloud-status-text" class="text-[11px] text-slate-300 hidden sm:inline">Conectando...</span>
             </div>
 
-            <!-- MÉTRICAS EN VIVO DE CABECERA -->
+            <!-- MÉTRICAS EN VIVO -->
             <div class="hidden lg:flex items-center space-x-4 bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-1.5 text-xs">
                 <div>
                     <span class="text-slate-400 text-[10px] block uppercase font-bold tracking-wider">Ventas Turno</span>
@@ -157,9 +156,9 @@
                 </div>
             </div>
 
-            <button onclick="openCashMovementModal('OUT')" title="Registrar Egreso de Caja" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-800 hover:border-slate-700 px-3 py-2 rounded-xl font-bold text-xs transition">
+            <button onclick="openCashMovementModal('OUT')" title="Movimiento de Caja" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-800 hover:border-slate-700 px-3 py-2 rounded-xl font-bold text-xs transition">
                 <i data-lucide="arrow-up-right" class="w-4 h-4 text-chaska-400"></i>
-                <span class="hidden sm:inline">Egreso Caja</span>
+                <span class="hidden sm:inline">Caja Chica</span>
             </button>
 
             <button onclick="openNewSupplyModal()" title="Nuevo Insumo" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-800 hover:border-slate-700 px-3 py-2 rounded-xl font-bold text-xs transition">
@@ -173,7 +172,7 @@
         </div>
     </header>
 
-    <!-- CUERPO PRINCIPAL CON BARRA LATERAL UNIFICADA -->
+    <!-- CUERPO PRINCIPAL -->
     <div class="flex flex-1 overflow-hidden relative">
 
         <!-- NAVEGACIÓN LATERAL -->
@@ -181,7 +180,7 @@
             <div class="py-3 px-2 space-y-1.5">
                 <button onclick="switchTab('floormap')" id="nav-floormap" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition bg-chaska-600 text-white shadow-lg shadow-chaska-600/25">
                     <i data-lucide="layout-grid" class="w-4 h-4 shrink-0"></i>
-                    <span class="hidden md:inline font-bold">Plano de Mesas (8)</span>
+                    <span class="hidden md:inline font-bold">Plano de Mesas</span>
                 </button>
 
                 <button onclick="switchTab('pos')" id="nav-pos" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 transition">
@@ -206,7 +205,7 @@
 
                 <button onclick="switchTab('cashier')" id="nav-cashier" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 transition">
                     <i data-lucide="receipt" class="w-4 h-4 shrink-0"></i>
-                    <span class="hidden md:inline">Caja & Arqueo Ciego</span>
+                    <span class="hidden md:inline">Caja & Movimientos</span>
                 </button>
 
                 <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 transition">
@@ -216,7 +215,7 @@
 
                 <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 transition">
                     <i data-lucide="settings" class="w-4 h-4 shrink-0"></i>
-                    <span class="hidden md:inline">Configuración</span>
+                    <span class="hidden md:inline font-bold">Configuración</span>
                 </button>
             </div>
 
@@ -244,15 +243,15 @@
         <!-- CONTENEDOR CENTRAL DE PANTALLAS -->
         <main class="flex-1 bg-slate-950 overflow-hidden relative">
 
-            <!-- VISTA 1: PLANO DE MESAS (8 MESAS) -->
+            <!-- VISTA 1: PLANO DE MESAS -->
             <div id="view-floormap" class="view-panel h-full flex flex-col p-3 md:p-6 overflow-y-auto">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                     <div>
                         <h2 class="text-xl font-extrabold text-white flex items-center gap-2" id="floormap-heading">
                             Salón Chaska
-                            <span class="text-xs bg-slate-900 text-chaska-400 px-2.5 py-0.5 rounded-full font-semibold border border-slate-800">8 Mesas Asignadas</span>
+                            <span class="text-xs bg-slate-900 text-chaska-400 px-2.5 py-0.5 rounded-full font-semibold border border-slate-800" id="floormap-count-badge">8 Mesas</span>
                         </h2>
-                        <p class="text-xs text-slate-400">Monitorea el estado, tiempo de comanda en mesa y toca cualquiera para comandar o cobrar.</p>
+                        <p class="text-xs text-slate-400">Monitorea mesas, tiempos de comanda y toca cualquiera para comandar o cobrar.</p>
                     </div>
 
                     <div class="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs overflow-x-auto" id="floormap-zone-filters"></div>
@@ -302,7 +301,7 @@
                             </div>
                         </div>
 
-                        <!-- FILTROS DIRECTOS: TODO / COMIDAS / BEBIDAS -->
+                        <!-- FILTROS DIRECTOS -->
                         <div class="flex items-center gap-2">
                             <div class="bg-slate-900 p-1 rounded-xl border border-slate-800 flex text-xs shrink-0">
                                 <button onclick="setPosTypeFilter('all')" id="btn-pos-type-all" class="px-3 py-1 rounded-lg font-bold bg-chaska-600 text-white transition">Todo</button>
@@ -468,7 +467,7 @@
                             <i data-lucide="boxes" class="w-5 h-5 text-chaska-500"></i>
                             Insumos & Compras del Restaurante
                         </h2>
-                        <p class="text-xs text-slate-400">Registro simple y directo de materias primas, bebidas por cajón y compras de reposición sin complicaciones.</p>
+                        <p class="text-xs text-slate-400">Registro simple y directo de materias primas, bebidas por cajón y compras de reposición.</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="openNewSupplyModal()" class="bg-chaska-600 hover:bg-chaska-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-chaska-600/25 transition">
@@ -504,17 +503,20 @@
                 </div>
             </div>
 
-            <!-- VISTA 6: CAJA & ARQUEO CIEGO -->
+            <!-- VISTA 6: CAJA, INGRESOS, EGRESOS & ARQUEO -->
             <div id="view-cashier" class="view-panel hidden h-full flex flex-col p-3 md:p-6 overflow-y-auto space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h2 class="text-xl font-extrabold text-white">Caja, Egresos & Cierres de Turno</h2>
-                        <p class="text-xs text-slate-400">Fondo inicial, registro de gastos de emergencia y arqueo ciego para auditoría transparente.</p>
+                        <h2 class="text-xl font-extrabold text-white">Caja, Ingresos, Egresos & Turno</h2>
+                        <p class="text-xs text-slate-400">Fondo inicial, movimientos de caja chica y arqueo ciego para auditoría transparente.</p>
                     </div>
 
                     <div class="flex items-center gap-2">
+                        <button onclick="openCashMovementModal('IN')" class="bg-slate-900 hover:bg-slate-800 text-emerald-400 hover:text-emerald-300 border border-slate-800 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                            <i data-lucide="arrow-down-left" class="w-4 h-4"></i> + Ingreso Efectivo
+                        </button>
                         <button onclick="openCashMovementModal('OUT')" class="bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-800 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-                            <i data-lucide="minus-circle" class="w-4 h-4 text-chaska-400"></i> Registrar Egreso
+                            <i data-lucide="minus-circle" class="w-4 h-4 text-chaska-400"></i> - Registrar Egreso
                         </button>
                         <button onclick="openBlindCloseModal()" class="bg-chaska-600 hover:bg-chaska-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-chaska-600/25 transition">
                             <i data-lucide="lock" class="w-4 h-4"></i> Cierre Ciego de Turno
@@ -522,13 +524,15 @@
                     </div>
                 </div>
 
-                <!-- CARDS DE METRICAS CON DISEÑO UNIFICADO -->
+                <!-- CARDS DE MÉTRICAS -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-lg">
                         <div>
                             <span class="text-slate-400 text-xs font-semibold block uppercase tracking-wider">Fondo Inicial</span>
                             <span class="text-2xl font-black text-white mt-1 block" id="cashier-initial-fund">$0</span>
-                            <span class="text-[10px] text-slate-400 mt-0.5 block">Apertura de turno</span>
+                            <button onclick="openEditInitialCashModal()" class="text-[10px] text-chaska-400 hover:underline mt-0.5 block flex items-center gap-1">
+                                <i data-lucide="edit-2" class="w-3 h-3"></i> Editar fondo
+                            </button>
                         </div>
                         <div class="p-3 bg-slate-950 text-chaska-400 rounded-xl border border-slate-800">
                             <i data-lucide="wallet" class="w-6 h-6"></i>
@@ -550,7 +554,7 @@
                         <div>
                             <span class="text-slate-400 text-xs font-semibold block uppercase tracking-wider">Egresos / Gastos</span>
                             <span class="text-2xl font-black text-slate-300 mt-1 block" id="cashier-total-expenses">$0</span>
-                            <span class="text-[10px] text-slate-400 mt-0.5 block">Compras menores / retiros</span>
+                            <span class="text-[10px] text-slate-400 mt-0.5 block" id="cashier-incomes-summary-text">Ingresos caja: $0</span>
                         </div>
                         <div class="p-3 bg-slate-950 text-chaska-400 rounded-xl border border-slate-800">
                             <i data-lucide="arrow-up-right" class="w-6 h-6"></i>
@@ -561,7 +565,7 @@
                         <div>
                             <span class="text-slate-400 text-xs font-semibold block uppercase tracking-wider">Efectivo Teórico</span>
                             <span class="text-2xl font-black text-white mt-1 block" id="cashier-theoretical-cash">$0</span>
-                            <span class="text-[10px] text-slate-400 mt-0.5 block">Fondo + Efectivo - Gastos</span>
+                            <span class="text-[10px] text-slate-400 mt-0.5 block">Fondo + Efectivo + Ingresos - Egresos</span>
                         </div>
                         <div class="p-3 bg-slate-950 text-chaska-400 rounded-xl border border-slate-800">
                             <i data-lucide="calculator" class="w-6 h-6"></i>
@@ -594,6 +598,42 @@
                     </div>
                 </div>
 
+                <!-- TABLA 1: MOVIMIENTOS DE CAJA CHICA (INGRESOS Y EGRESOS) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                    <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
+                        <span class="font-bold text-white text-xs flex items-center gap-2">
+                            <i data-lucide="arrow-left-right" class="w-4 h-4 text-chaska-400"></i> Movimientos de Efectivo (Ingresos / Egresos Manuales)
+                        </span>
+                        <div class="flex gap-2">
+                            <button onclick="openCashMovementModal('IN')" class="text-[11px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Ingreso
+                            </button>
+                            <span class="text-slate-600">|</span>
+                            <button onclick="openCashMovementModal('OUT')" class="text-[11px] text-chaska-400 hover:text-chaska-300 font-bold flex items-center gap-1">
+                                <i data-lucide="minus" class="w-3 h-3"></i> Egreso
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-950 uppercase text-[10px] text-slate-400 font-bold border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3.5">Hora</th>
+                                    <th class="p-3.5 text-center">Tipo</th>
+                                    <th class="p-3.5">Categoría / Concepto</th>
+                                    <th class="p-3.5">Descripción</th>
+                                    <th class="p-3.5 text-right">Monto</th>
+                                    <th class="p-3.5">Usuario</th>
+                                    <th class="p-3.5 text-right">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cashier-movements-table-body" class="divide-y divide-slate-800/60"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TABLA 2: HISTORIAL DE VENTAS COBRADAS -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                     <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
                         <span class="font-bold text-white text-xs flex items-center gap-2">
@@ -627,7 +667,7 @@
                         <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
                             <i data-lucide="bar-chart-3" class="w-5 h-5 text-chaska-500"></i> Métricas Clave del Negocio
                         </h2>
-                        <p class="text-xs text-slate-400">Rendimiento de las 8 mesas, platos estrella y ticket promedio para el dueño.</p>
+                        <p class="text-xs text-slate-400">Rendimiento de las mesas, platos estrella y ticket promedio para el dueño.</p>
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -673,44 +713,48 @@
                 </div>
             </div>
 
-            <!-- VISTA 8: CONFIGURACIÓN -->
+            <!-- VISTA 8: CONFIGURACIÓN EXPANDIDA (MESAS, USUARIOS, LOCAL, SEDES) -->
             <div id="view-settings" class="view-panel hidden h-full flex flex-col p-3 md:p-6 overflow-y-auto space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
-                        <h2 class="text-xl font-extrabold text-white">Configuración del Restaurante</h2>
-                        <p class="text-xs text-slate-400">Administra las mesas, operadores con PIN y restaurantes activos.</p>
+                        <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <i data-lucide="sliders" class="w-5 h-5 text-chaska-500"></i>
+                            Configuración del Restaurante
+                        </h2>
+                        <p class="text-xs text-slate-400">Crea, edita o elimina mesas, operadores con PIN, zonas y parámetros generales.</p>
                     </div>
 
-                    <div class="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+                    <div class="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs overflow-x-auto">
                         <button onclick="switchSettingsTab('tables')" id="subnav-settings-tables" class="settings-tab-btn bg-chaska-600 text-white px-3 py-1.5 rounded-lg font-bold transition">Mesas & Salón</button>
                         <button onclick="switchSettingsTab('users')" id="subnav-settings-users" class="settings-tab-btn text-slate-400 hover:text-white px-3 py-1.5 rounded-lg font-bold transition">Usuarios & PIN</button>
+                        <button onclick="switchSettingsTab('general')" id="subnav-settings-general" class="settings-tab-btn text-slate-400 hover:text-white px-3 py-1.5 rounded-lg font-bold transition">Local & Parámetros</button>
                         <button onclick="switchSettingsTab('branches')" id="subnav-settings-branches" class="settings-tab-btn text-slate-400 hover:text-white px-3 py-1.5 rounded-lg font-bold transition">Restaurantes (Sedes)</button>
                     </div>
                 </div>
 
-                <!-- Sub-tab Mesas -->
+                <!-- Sub-tab 1: Mesas (Crear, Editar y Eliminar) -->
                 <div id="settings-tab-tables" class="settings-subpanel space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                             <div class="flex items-center gap-2 text-white font-bold text-sm border-b border-slate-800 pb-2.5">
                                 <i data-lucide="plus-circle" class="w-4 h-4 text-chaska-500"></i>
-                                <span id="form-table-title">Agregar / Editar Mesa</span>
+                                <span id="form-table-title">Agregar Nueva Mesa</span>
                             </div>
 
                             <form onsubmit="handleSaveTable(event)" class="space-y-3 text-xs">
                                 <input type="hidden" id="setting-table-id" value="">
                                 <div>
                                     <label class="text-slate-300 font-semibold block mb-1">Identificador de Mesa</label>
-                                    <input type="text" id="setting-table-number" required placeholder="Ej: Mesa 01" class="form-input-base">
+                                    <input type="text" id="setting-table-number" required placeholder="Ej: Mesa 09, Barra 2" class="form-input-base">
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label class="text-slate-300 font-semibold block mb-1">Zona</label>
+                                        <label class="text-slate-300 font-semibold block mb-1">Zona / Salón</label>
                                         <select id="setting-table-zone" class="form-input-base font-bold"></select>
                                     </div>
                                     <div>
-                                        <label class="text-slate-300 font-semibold block mb-1">Capacidad</label>
-                                        <input type="number" id="setting-table-capacity" required min="1" max="20" value="4" class="form-input-base">
+                                        <label class="text-slate-300 font-semibold block mb-1">Capacidad (pers.)</label>
+                                        <input type="number" id="setting-table-capacity" required min="1" max="30" value="4" class="form-input-base">
                                     </div>
                                 </div>
                                 <div class="flex gap-2 pt-2">
@@ -725,6 +769,7 @@
                                 <span class="font-bold text-white text-xs flex items-center gap-2">
                                     <i data-lucide="layout-grid" class="w-4 h-4 text-chaska-400"></i> Mesas Habilitadas (<span id="settings-table-count">8</span>)
                                 </span>
+                                <span class="text-[11px] text-slate-400">Puedes editar o eliminar cualquier mesa</span>
                             </div>
 
                             <div class="overflow-x-auto flex-1">
@@ -745,7 +790,7 @@
                     </div>
                 </div>
 
-                <!-- Sub-tab Usuarios -->
+                <!-- Sub-tab 2: Usuarios (Crear, Editar y Eliminar con PIN) -->
                 <div id="settings-tab-users" class="settings-subpanel hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
@@ -776,7 +821,7 @@
                                 </div>
                                 <div class="flex gap-2 pt-2">
                                     <button type="button" onclick="resetUserForm()" id="btn-cancel-user-edit" class="hidden flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl font-bold transition">Cancelar</button>
-                                    <button type="submit" id="btn-save-user" class="flex-1 bg-chaska-600 hover:bg-chaska-500 text-white py-2.5 rounded-xl font-extrabold transition shadow-lg shadow-chaska-600/25">Guardar</button>
+                                    <button type="submit" id="btn-save-user" class="flex-1 bg-chaska-600 hover:bg-chaska-500 text-white py-2.5 rounded-xl font-extrabold transition shadow-lg shadow-chaska-600/25">Guardar Usuario</button>
                                 </div>
                             </form>
                         </div>
@@ -786,6 +831,7 @@
                                 <span class="font-bold text-white text-xs flex items-center gap-2">
                                     <i data-lucide="users" class="w-4 h-4 text-chaska-400"></i> Personal Habilitado (<span id="settings-user-count">3</span>)
                                 </span>
+                                <span class="text-[11px] text-slate-400">Cada usuario puede tener su PIN exclusivo</span>
                             </div>
                             <div class="overflow-x-auto flex-1">
                                 <table class="w-full text-left text-xs text-slate-300">
@@ -805,7 +851,47 @@
                     </div>
                 </div>
 
-                <!-- Sub-tab Sedes -->
+                <!-- Sub-tab 3: Parámetros del Local (Nombre, Propina, Zonas, Fondo) -->
+                <div id="settings-tab-general" class="settings-subpanel hidden space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl max-w-2xl space-y-4">
+                        <div class="border-b border-slate-800 pb-3">
+                            <h3 class="font-extrabold text-white text-base">Identidad del Local & Parámetros</h3>
+                            <p class="text-xs text-slate-400">Información reflejada en comandas, tickets térmicos y cálculos automáticos.</p>
+                        </div>
+
+                        <form onsubmit="handleSaveGeneralSettings(event)" class="space-y-4 text-xs">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-slate-300 font-semibold block mb-1">Nombre Comercial del Restaurante</label>
+                                    <input type="text" id="setting-general-name" required value="Chaska" class="form-input-base">
+                                </div>
+                                <div>
+                                    <label class="text-slate-300 font-semibold block mb-1">% Propina Sugerida</label>
+                                    <input type="number" id="setting-general-tip" min="0" max="30" value="10" required class="form-input-base">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-slate-300 font-semibold block mb-1">Fondo Inicial de Caja del Turno ($)</label>
+                                <input type="number" id="setting-general-initial-cash" min="0" value="35000" required class="form-input-base font-mono">
+                            </div>
+
+                            <div>
+                                <label class="text-slate-300 font-semibold block mb-1">Zonas del Salón (separadas por coma)</label>
+                                <input type="text" id="setting-general-zones" required value="Salón Principal, Terraza, Barra" class="form-input-base">
+                                <span class="text-[10px] text-slate-500 mt-1 block">Ejemplo: Salón Principal, Terraza, Barra, Patio</span>
+                            </div>
+
+                            <div class="pt-2">
+                                <button type="submit" class="bg-chaska-600 hover:bg-chaska-500 text-white font-extrabold py-3 px-6 rounded-xl text-xs transition shadow-lg shadow-chaska-600/25 flex items-center gap-2">
+                                    <i data-lucide="check" class="w-4 h-4"></i> Guardar Parámetros
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Sub-tab 4: Sedes / Restaurantes Registrados -->
                 <div id="settings-tab-branches" class="settings-subpanel hidden space-y-6">
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-4">
                         <div class="border-b border-slate-800 pb-3">
@@ -820,7 +906,82 @@
         </main>
     </div>
 
-    <!-- MODALES CON DISEÑO Y PALETA UNIFICADA -->
+    <!-- MODALES CON DISEÑO UNIFICADO -->
+
+    <!-- MODAL: EDITAR FONDO INICIAL DE CAJA -->
+    <div id="modal-edit-initial-cash" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button onclick="closeEditInitialCashModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="flex items-center gap-2 mb-2 text-chaska-500">
+                <i data-lucide="wallet" class="w-5 h-5"></i>
+                <h3 class="text-base font-extrabold text-white">Editar Fondo Inicial</h3>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Ajusta el monto con el que abrió la gaveta de caja en este turno.</p>
+            <form onsubmit="handleSaveInitialCash(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="text-slate-300 font-semibold block mb-1">Monto en Efectivo de Apertura ($)</label>
+                    <input type="number" id="input-edit-initial-cash" required min="0" placeholder="35000" class="form-input-base text-base font-bold font-mono text-chaska-400">
+                </div>
+                <button type="submit" class="w-full bg-chaska-600 hover:bg-chaska-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-chaska-600/25 mt-2">
+                    <i data-lucide="check" class="w-4 h-4"></i> Actualizar Fondo
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTRAR INGRESO O EGRESO DE CAJA CHICA -->
+    <div id="modal-cash-movement" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeCashMovementModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="flex items-center gap-2 mb-2 text-chaska-500">
+                <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+                <h3 class="text-base font-extrabold text-white" id="modal-cash-movement-title">Movimiento de Caja Chica</h3>
+            </div>
+            <p class="text-xs text-slate-400 mb-4" id="modal-cash-movement-subtitle">Salida o entrada manual de efectivo en la gaveta.</p>
+            
+            <form onsubmit="handleSaveCashMovement(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="text-slate-300 font-semibold block mb-1">Tipo de Movimiento</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="setCashMovementModalType('OUT')" id="btn-cash-type-out" class="py-2 px-3 rounded-xl font-bold border transition flex items-center justify-center gap-1.5 bg-chaska-600 text-white border-chaska-500">
+                            <i data-lucide="minus-circle" class="w-4 h-4"></i> Egreso (Gasto)
+                        </button>
+                        <button type="button" onclick="setCashMovementModalType('IN')" id="btn-cash-type-in" class="py-2 px-3 rounded-xl font-bold border transition flex items-center justify-center gap-1.5 bg-slate-950 text-slate-400 border-slate-800 hover:text-white">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Ingreso (Entrada)
+                        </button>
+                    </div>
+                    <input type="hidden" id="cash-movement-type" value="OUT">
+                </div>
+
+                <div>
+                    <label class="text-slate-300 font-semibold block mb-1">Monto ($)</label>
+                    <input type="number" id="cash-movement-amount" required min="1" placeholder="Ej: 5000" class="form-input-base font-bold text-base text-chaska-400 font-mono">
+                </div>
+
+                <div>
+                    <label class="text-slate-300 font-semibold block mb-1">Categoría</label>
+                    <select id="cash-movement-category" class="form-input-base font-bold">
+                        <option value="Pago Proveedor de Urgencia">Pago Proveedor de Urgencia</option>
+                        <option value="Compra Hielo / Insumo Menor">Compra Hielo / Insumo Menor</option>
+                        <option value="Farmacia / Limpieza">Farmacia / Limpieza</option>
+                        <option value="Retiro de Efectivo / Dueño">Retiro de Efectivo / Dueño</option>
+                        <option value="Ingreso de Cambio / Sencillo">Ingreso de Cambio / Sencillo</option>
+                        <option value="Aporte de Fondo Adicional">Aporte de Fondo Adicional</option>
+                        <option value="Otro Concepto">Otro Concepto</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-slate-300 font-semibold block mb-1">Descripción / Motivo</label>
+                    <input type="text" id="cash-movement-desc" placeholder="Ej: Bolsas de hielo para barra" required class="form-input-base">
+                </div>
+
+                <button type="submit" class="w-full bg-chaska-600 hover:bg-chaska-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-chaska-600/25 mt-2">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> Guardar Movimiento
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- MODAL: IDENTIFICACIÓN DE USUARIO CON TECLADO PIN -->
     <div id="modal-user-login" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
@@ -1016,7 +1177,7 @@
         </div>
     </div>
 
-    <!-- MODAL: PRE-CUENTA -->
+    <!-- MODAL: PRE-CUENTA TÉRMICA -->
     <div id="modal-prebill" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl relative flex flex-col max-h-[90vh]">
             <button onclick="closePreBillModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white no-print">
@@ -1081,41 +1242,6 @@
             <button onclick="executeMergeTable()" class="w-full bg-chaska-600 hover:bg-chaska-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-chaska-600/25">
                 <i data-lucide="check" class="w-4 h-4"></i> Fusionar Cuentas
             </button>
-        </div>
-    </div>
-
-    <!-- MODAL: EGRESO DE CAJA -->
-    <div id="modal-cash-movement" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
-            <button onclick="closeCashMovementModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            <div class="flex items-center gap-2 mb-2 text-chaska-500">
-                <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
-                <h3 class="text-base font-extrabold text-white">Registrar Egreso de Caja Chica</h3>
-            </div>
-            <p class="text-xs text-slate-400 mb-4">Salida de efectivo de la gaveta para compras menores o urgencias.</p>
-            <form onsubmit="handleSaveCashMovement(event)" class="space-y-3 text-xs">
-                <input type="hidden" id="cash-movement-type" value="OUT">
-                <div>
-                    <label class="text-slate-300 font-semibold block mb-1">Monto ($)</label>
-                    <input type="number" id="cash-movement-amount" required min="1" placeholder="Ej: 5000" class="form-input-base font-bold text-base text-chaska-400">
-                </div>
-                <div>
-                    <label class="text-slate-300 font-semibold block mb-1">Categoría</label>
-                    <select id="cash-movement-category" class="form-input-base font-bold">
-                        <option value="Pago Proveedor de Urgencia">Pago Proveedor de Urgencia</option>
-                        <option value="Compra Hielo / Insumo Menor">Compra Hielo / Insumo Menor</option>
-                        <option value="Farmacia / Limpieza">Farmacia / Limpieza</option>
-                        <option value="Retiro de Efectivo / Dueño">Retiro de Efectivo / Dueño</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-slate-300 font-semibold block mb-1">Descripción</label>
-                    <input type="text" id="cash-movement-desc" placeholder="Ej: Bolsas de hielo para barra" required class="form-input-base">
-                </div>
-                <button type="submit" class="w-full bg-chaska-600 hover:bg-chaska-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-chaska-600/25 mt-2">
-                    <i data-lucide="check-circle" class="w-4 h-4"></i> Guardar Egreso
-                </button>
-            </form>
         </div>
     </div>
 
@@ -1222,7 +1348,7 @@
             onSnapshot 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // CREDENCIALES DIRECTAS DE FIREBASE
+        // CREDENCIALES DE FIREBASE
         const DIRECT_FIREBASE_CONFIG = {
             apiKey: "AIzaSyBgZkkxrGq3yWLCLgqdcbbsJAY3evHTApY",
             authDomain: "chaska-d12c8.firebaseapp.com",
@@ -1374,13 +1500,13 @@
         let isSyncingFromCloud = false;
         let unsubscribeSnapshot = null;
 
-        // Estado del Teclado PIN
+        // Estado Teclado PIN
         let pinTargetUser = null;
         let currentPinInput = "";
 
         function loadLocalCachedState() {
             try {
-                const raw = localStorage.getItem('chaska_pos_offline_cache_v3');
+                const raw = localStorage.getItem('chaska_pos_offline_cache_v4');
                 if (raw) return JSON.parse(raw);
             } catch(e){}
             return null;
@@ -1388,7 +1514,7 @@
 
         function saveLocalCachedState() {
             try {
-                localStorage.setItem('chaska_pos_offline_cache_v3', JSON.stringify(multiState));
+                localStorage.setItem('chaska_pos_offline_cache_v4', JSON.stringify(multiState));
             } catch(e){}
         }
 
@@ -1673,6 +1799,7 @@
             const avatar = document.getElementById('header-brand-avatar');
             const nameEl = document.getElementById('header-brand-name');
             const tablesBadge = document.getElementById('header-tables-badge');
+            const floormapBadge = document.getElementById('floormap-count-badge');
 
             if (!container) return;
 
@@ -1684,6 +1811,7 @@
             }
             if (nameEl) nameEl.innerText = activeBranch.name;
             if (tablesBadge) tablesBadge.innerText = `${activeBranch.tables.length} Mesas`;
+            if (floormapBadge) floormapBadge.innerText = `${activeBranch.tables.length} Mesas`;
 
             container.innerHTML = '';
 
@@ -1944,6 +2072,8 @@
             document.getElementById('count-bill').innerText = bill;
             document.getElementById('header-occupied-tables').innerText = `${occupied + bill} / ${totalTables}`;
             document.getElementById('header-tables-badge').innerText = `${totalTables} Mesas`;
+            const badgeFloor = document.getElementById('floormap-count-badge');
+            if (badgeFloor) badgeFloor.innerText = `${totalTables} Mesas`;
 
             updateHeaderMetrics();
             lucide.createIcons();
@@ -2680,7 +2810,7 @@
             area.innerHTML = `
                 <div class="text-center pb-2 border-b border-dashed border-slate-400">
                     <h2 class="text-base font-black uppercase tracking-wider">${appState.settings.restaurantName || 'SOFTWARE CHASKA'}</h2>
-                    <p class="text-[10px] text-slate-600">Servicio de Salón & Barra (8 Mesas)</p>
+                    <p class="text-[10px] text-slate-600">Servicio de Salón & Barra (${appState.tables.length} Mesas)</p>
                     <p class="text-[10px] text-slate-500 font-bold mt-1">*** PRE-CUENTA DE CONSUMO ***</p>
                 </div>
 
@@ -2830,11 +2960,36 @@
         }
 
         // ==========================================
-        // MOVIMIENTOS & CIERRE CIEGO DE CAJA
+        // MOVIMIENTOS DE CAJA CHICA (INGRESOS Y EGRESOS)
         // ==========================================
         function openCashMovementModal(type = 'OUT') {
-            document.getElementById('cash-movement-type').value = type;
+            setCashMovementModalType(type);
+            document.getElementById('cash-movement-amount').value = '';
+            document.getElementById('cash-movement-desc').value = '';
             document.getElementById('modal-cash-movement').classList.remove('hidden');
+        }
+
+        function setCashMovementModalType(type) {
+            document.getElementById('cash-movement-type').value = type;
+            const btnOut = document.getElementById('btn-cash-type-out');
+            const btnIn = document.getElementById('btn-cash-type-in');
+            const titleEl = document.getElementById('modal-cash-movement-title');
+            const subTitleEl = document.getElementById('modal-cash-movement-subtitle');
+            const catSelect = document.getElementById('cash-movement-category');
+
+            if (type === 'IN') {
+                btnIn.className = "py-2 px-3 rounded-xl font-bold border transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white border-emerald-500";
+                btnOut.className = "py-2 px-3 rounded-xl font-bold border transition flex items-center justify-center gap-1.5 bg-slate-950 text-slate-400 border-slate-800 hover:text-white";
+                if (titleEl) titleEl.innerText = "Registrar Ingreso de Efectivo";
+                if (subTitleEl) subTitleEl.innerText = "Entrada manual de cambio o aporte de dinero a la gaveta.";
+                if (catSelect) catSelect.value = "Ingreso de Cambio / Sencillo";
+            } else {
+                btnOut.className = "py-2 px-3 rounded-xl font-bold border transition flex items-center justify-center gap-1.5 bg-chaska-600 text-white border-chaska-500";
+                btnIn.className = "py-2 px-3 rounded-xl font-bold border transition flex items-center justify-center gap-1.5 bg-slate-950 text-slate-400 border-slate-800 hover:text-white";
+                if (titleEl) titleEl.innerText = "Registrar Egreso de Caja Chica";
+                if (subTitleEl) subTitleEl.innerText = "Salida de efectivo de la gaveta para compras menores o gastos.";
+                if (catSelect) catSelect.value = "Pago Proveedor de Urgencia";
+            }
         }
 
         function closeCashMovementModal() {
@@ -2867,7 +3022,38 @@
             closeCashMovementModal();
             renderCashierView();
             updateHeaderMetrics();
-            showToast(`Egreso registrado: $${amount.toLocaleString()} (${category})`, "info");
+            const labelType = type === 'IN' ? 'Ingreso' : 'Egreso';
+            showToast(`${labelType} registrado: $${amount.toLocaleString()} (${category})`, "info");
+        }
+
+        function deleteCashMovement(id) {
+            if (!confirm("¿Deseas eliminar este movimiento de caja?")) return;
+            appState.shift.cashMovements = (appState.shift.cashMovements || []).filter(m => m.id !== id);
+            saveState();
+            renderCashierView();
+            updateHeaderMetrics();
+            showToast("Movimiento de caja eliminado", "info");
+        }
+
+        function openEditInitialCashModal() {
+            document.getElementById('input-edit-initial-cash').value = appState.shift.initialCash || 35000;
+            document.getElementById('modal-edit-initial-cash').classList.remove('hidden');
+        }
+
+        function closeEditInitialCashModal() {
+            document.getElementById('modal-edit-initial-cash').classList.add('hidden');
+        }
+
+        function handleSaveInitialCash(e) {
+            e.preventDefault();
+            const newAmount = parseFloat(document.getElementById('input-edit-initial-cash').value);
+            if (isNaN(newAmount) || newAmount < 0) return;
+            appState.shift.initialCash = newAmount;
+            saveState();
+            closeEditInitialCashModal();
+            renderCashierView();
+            updateHeaderMetrics();
+            showToast(`Fondo inicial actualizado a $${newAmount.toLocaleString()}`, "success");
         }
 
         function openBlindCloseModal() {
@@ -2894,8 +3080,9 @@
 
             const initialCash = appState.shift.initialCash || 0;
             const totalExpenses = (appState.shift.cashMovements || []).filter(m => m.type === 'OUT').reduce((acc, m) => acc + m.amount, 0);
+            const totalIncomes = (appState.shift.cashMovements || []).filter(m => m.type === 'IN').reduce((acc, m) => acc + m.amount, 0);
 
-            const expectedCashInDrawer = initialCash + totalCashSales - totalExpenses;
+            const expectedCashInDrawer = initialCash + totalCashSales + totalIncomes - totalExpenses;
             const diffCash = countedCash - expectedCashInDrawer;
             const diffCard = countedCard - totalCardSales;
             const diffQr = countedQr - totalQrSales;
@@ -2956,28 +3143,67 @@
 
         function renderCashierView() {
             const tbodySales = document.getElementById('cashier-history-table-body');
+            const tbodyMovements = document.getElementById('cashier-movements-table-body');
             if (!tbodySales) return;
 
             const total = (appState.history || []).reduce((acc, h) => acc + h.total, 0);
             const count = (appState.history || []).length;
             const initialCash = appState.shift.initialCash || 35000;
             const expenses = (appState.shift.cashMovements || []).filter(m => m.type === 'OUT').reduce((acc, m) => acc + m.amount, 0);
+            const incomes = (appState.shift.cashMovements || []).filter(m => m.type === 'IN').reduce((acc, m) => acc + m.amount, 0);
             const cashSales = (appState.history || []).filter(h => h.method === 'Efectivo').reduce((acc, h) => acc + h.total, 0);
             const cardSales = (appState.history || []).filter(h => h.method === 'Tarjeta').reduce((acc, h) => acc + h.total, 0);
             const qrSales = (appState.history || []).filter(h => h.method.includes('QR')).reduce((acc, h) => acc + h.total, 0);
 
-            const theoreticalCash = initialCash + cashSales - expenses;
+            const theoreticalCash = initialCash + cashSales + incomes - expenses;
 
             document.getElementById('cashier-initial-fund').innerText = `$${initialCash.toLocaleString()}`;
             document.getElementById('cashier-total-collected').innerText = `$${total.toLocaleString()}`;
             document.getElementById('cashier-orders-count-text').innerText = `${count} cuenta(s) cerrada(s)`;
             document.getElementById('cashier-total-expenses').innerText = `$${expenses.toLocaleString()}`;
+            document.getElementById('cashier-incomes-summary-text').innerText = `Ingresos caja: +$${incomes.toLocaleString()}`;
             document.getElementById('cashier-theoretical-cash').innerText = `$${theoreticalCash.toLocaleString()}`;
 
             document.getElementById('cashier-breakdown-cash').innerText = `$${cashSales.toLocaleString()}`;
             document.getElementById('cashier-breakdown-card').innerText = `$${cardSales.toLocaleString()}`;
             document.getElementById('cashier-breakdown-qr').innerText = `$${qrSales.toLocaleString()}`;
 
+            // Movimientos manuales
+            if (tbodyMovements) {
+                tbodyMovements.innerHTML = '';
+                const movements = appState.shift.cashMovements || [];
+                if (movements.length === 0) {
+                    tbodyMovements.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Sin movimientos manuales de caja chica registrados en este turno.</td></tr>`;
+                } else {
+                    movements.forEach(m => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-slate-800/40 transition';
+                        const isIncome = m.type === 'IN';
+                        tr.innerHTML = `
+                            <td class="p-3.5 text-slate-400 font-mono">${m.timestamp}</td>
+                            <td class="p-3.5 text-center">
+                                <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold ${isIncome ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-chaska-500/15 text-chaska-400 border border-chaska-500/30'}">
+                                    ${isIncome ? 'INGRESO' : 'EGRESO'}
+                                </span>
+                            </td>
+                            <td class="p-3.5 font-bold text-white">${m.category}</td>
+                            <td class="p-3.5 text-slate-300">${m.desc}</td>
+                            <td class="p-3.5 text-right font-black font-mono text-sm ${isIncome ? 'text-emerald-400' : 'text-slate-200'}">
+                                ${isIncome ? '+' : '-'}$${m.amount.toLocaleString()}
+                            </td>
+                            <td class="p-3.5 text-slate-400">${m.user}</td>
+                            <td class="p-3.5 text-right">
+                                <button onclick="deleteCashMovement(${m.id})" title="Eliminar Movimiento" class="text-slate-500 hover:text-red-400 p-1 rounded-lg hover:bg-slate-800 transition">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbodyMovements.appendChild(tr);
+                    });
+                }
+            }
+
+            // Ventas
             tbodySales.innerHTML = '';
             if (appState.history.length === 0) {
                 tbodySales.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No hay ventas cobradas en el turno activo.</td></tr>`;
@@ -2998,14 +3224,16 @@
                     tbodySales.appendChild(tr);
                 });
             }
+            lucide.createIcons();
         }
 
         function updateHeaderMetrics() {
             const totalCollected = (appState.history || []).reduce((acc, h) => acc + h.total, 0);
             const initialCash = appState.shift.initialCash || 35000;
             const expenses = (appState.shift.cashMovements || []).filter(m => m.type === 'OUT').reduce((acc, m) => acc + m.amount, 0);
+            const incomes = (appState.shift.cashMovements || []).filter(m => m.type === 'IN').reduce((acc, m) => acc + m.amount, 0);
             const cashSales = (appState.history || []).filter(h => h.method === 'Efectivo').reduce((acc, h) => acc + h.total, 0);
-            const theoreticalCash = initialCash + cashSales - expenses;
+            const theoreticalCash = initialCash + cashSales + incomes - expenses;
 
             const elTodaySales = document.getElementById('header-today-sales');
             const elCash = document.getElementById('header-cash-balance');
@@ -3112,7 +3340,7 @@
         }
 
         // ==========================================
-        // CONFIGURACIÓN (MESAS, USUARIOS, SEDES)
+        // CONFIGURACIÓN (MESAS, USUARIOS, LOCAL, SEDES)
         // ==========================================
         function switchSettingsTab(tabKey) {
             document.querySelectorAll('.settings-subpanel').forEach(p => p.classList.add('hidden'));
@@ -3138,6 +3366,19 @@
             renderSettingsTablesTable();
             renderSettingsUsersTable();
             renderSettingsBranchesList();
+
+            // Parámetros generales
+            if (appState.settings) {
+                const elName = document.getElementById('setting-general-name');
+                const elTip = document.getElementById('setting-general-tip');
+                const elInitCash = document.getElementById('setting-general-initial-cash');
+                const elZones = document.getElementById('setting-general-zones');
+
+                if (elName) elName.value = appState.settings.restaurantName || appState.name || 'Chaska';
+                if (elTip) elTip.value = appState.settings.tipPercentage || 10;
+                if (elInitCash) elInitCash.value = appState.shift.initialCash || 35000;
+                if (elZones) elZones.value = (appState.settings.zones || ['Salón Principal', 'Terraza', 'Barra']).join(', ');
+            }
         }
 
         function renderSettingsZoneSelect() {
@@ -3152,6 +3393,7 @@
             });
         }
 
+        // --- GESTIÓN DE MESAS (CREAR, EDITAR Y ELIMINAR) ---
         function renderSettingsTablesTable() {
             const tbody = document.getElementById('settings-tables-table-body');
             if (!tbody) return;
@@ -3174,7 +3416,14 @@
                         </span>
                     </td>
                     <td class="p-3 text-right">
-                        <button onclick="editTableConfig(${t.id})" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                        <div class="flex items-center justify-end gap-1.5">
+                            <button onclick="editTableConfig(${t.id})" title="Editar Mesa" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="deleteTableConfig(${t.id})" title="Eliminar Mesa" class="text-slate-400 hover:text-red-400 p-1 rounded-lg hover:bg-slate-800 transition">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -3219,6 +3468,7 @@
             renderSettingsTablesTable();
             renderTables(appState.activeZoneFilter || 'all');
             updatePosTableSelector();
+            renderBranchSelector();
         }
 
         function editTableConfig(id) {
@@ -3237,11 +3487,38 @@
             document.getElementById('setting-table-id').value = '';
             document.getElementById('setting-table-number').value = '';
             document.getElementById('setting-table-capacity').value = 4;
-            document.getElementById('form-table-title').innerText = "Agregar / Editar Mesa";
+            document.getElementById('form-table-title').innerText = "Agregar Nueva Mesa";
             document.getElementById('btn-save-table').innerText = "Guardar Mesa";
             document.getElementById('btn-cancel-table-edit').classList.add('hidden');
         }
 
+        function deleteTableConfig(id) {
+            const table = appState.tables.find(t => t.id === id);
+            if (!table) return;
+
+            if (table.status !== 'free') {
+                showToast(`No puedes eliminar la mesa "${table.number}" porque tiene una comanda abierta. Cóbrala o anúlala primero.`, "warning");
+                return;
+            }
+
+            if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente la ${table.number}?`)) {
+                return;
+            }
+
+            appState.tables = appState.tables.filter(t => t.id !== id);
+            if (appState.selectedTableId === id) {
+                appState.selectedTableId = appState.tables.length > 0 ? appState.tables[0].id : null;
+            }
+
+            saveState();
+            renderSettingsTablesTable();
+            renderTables(appState.activeZoneFilter || 'all');
+            updatePosTableSelector();
+            renderBranchSelector();
+            showToast(`Mesa "${table.number}" eliminada del restaurante`, "info");
+        }
+
+        // --- GESTIÓN DE USUARIOS (CREAR, EDITAR Y ELIMINAR) ---
         function renderSettingsUsersTable() {
             const tbody = document.getElementById('settings-users-table-body');
             if (!tbody) return;
@@ -3263,10 +3540,17 @@
                         <i data-lucide="user" class="w-4 h-4 text-chaska-400"></i> ${u.name}
                     </td>
                     <td class="p-3"><span class="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded font-bold">${u.role}</span></td>
-                    <td class="p-3 text-center font-mono text-slate-400">${u.pin ? '••••' : '-'}</td>
+                    <td class="p-3 text-center font-mono text-slate-400">${u.pin ? u.pin : '-'}</td>
                     <td class="p-3 text-center">${statusBadge}</td>
                     <td class="p-3 text-right">
-                        <button onclick="editUserConfig(${u.id})" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                        <div class="flex items-center justify-end gap-1.5">
+                            <button onclick="editUserConfig(${u.id})" title="Editar Usuario" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="deleteUserConfig(${u.id})" title="Eliminar Usuario" class="text-slate-400 hover:text-red-400 p-1 rounded-lg hover:bg-slate-800 transition">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -3326,8 +3610,68 @@
             document.getElementById('setting-user-name').value = '';
             document.getElementById('setting-user-pin').value = '';
             document.getElementById('form-user-title').innerText = "Crear Nuevo Operador";
-            document.getElementById('btn-save-user').innerText = "Guardar";
+            document.getElementById('btn-save-user').innerText = "Guardar Usuario";
             document.getElementById('btn-cancel-user-edit').classList.add('hidden');
+        }
+
+        function deleteUserConfig(id) {
+            if (appState.users.length <= 1) {
+                showToast("Debe haber al menos un operador registrado en el sistema.", "warning");
+                return;
+            }
+
+            const user = appState.users.find(u => u.id === id);
+            if (!user) return;
+
+            if (!confirm(`¿Deseas eliminar al operador "${user.name}"?`)) {
+                return;
+            }
+
+            appState.users = appState.users.filter(u => u.id !== id);
+            if (appState.currentUserId === id) {
+                appState.currentUserId = appState.users[0].id;
+            }
+
+            saveState();
+            renderSettingsUsersTable();
+            updateHeaderUserDisplay();
+            showToast(`Operador "${user.name}" eliminado`, "info");
+        }
+
+        // --- GESTIÓN DE PARÁMETROS DEL LOCAL ---
+        function handleSaveGeneralSettings(e) {
+            e.preventDefault();
+            const name = document.getElementById('setting-general-name').value.trim() || 'Chaska';
+            const tip = parseInt(document.getElementById('setting-general-tip').value) || 10;
+            const initCash = parseFloat(document.getElementById('setting-general-initial-cash').value) || 0;
+            const rawZones = document.getElementById('setting-general-zones').value;
+
+            const parsedZones = rawZones.split(',').map(z => z.trim()).filter(z => z.length > 0);
+
+            appState.name = name;
+            if (!appState.settings) appState.settings = {};
+            appState.settings.restaurantName = name;
+            appState.settings.tipPercentage = tip;
+            if (parsedZones.length > 0) {
+                appState.settings.zones = parsedZones;
+            }
+            appState.shift.initialCash = initCash;
+
+            saveState();
+
+            const elBrand = document.getElementById('header-brand-name');
+            const elHeading = document.getElementById('floormap-heading');
+            if (elBrand) elBrand.innerText = name;
+            if (elHeading) elHeading.innerText = `Salón ${name}`;
+
+            renderSettingsZoneSelect();
+            renderFloorMapZoneFilters();
+            renderTables(appState.activeZoneFilter || 'all');
+            renderCashierView();
+            updateHeaderMetrics();
+            updatePosTotals();
+
+            showToast("Parámetros del restaurante actualizados correctamente", "success");
         }
 
         function renderSettingsBranchesList() {
@@ -3613,8 +3957,13 @@
             updateMergeTargetOptions,
             executeMergeTable,
             openCashMovementModal,
+            setCashMovementModalType,
             closeCashMovementModal,
             handleSaveCashMovement,
+            deleteCashMovement,
+            openEditInitialCashModal,
+            closeEditInitialCashModal,
+            handleSaveInitialCash,
             openBlindCloseModal,
             closeBlindCloseModal,
             calculateBlindCloseResult,
@@ -3625,9 +3974,12 @@
             handleSaveTable,
             resetTableForm,
             editTableConfig,
+            deleteTableConfig,
             handleSaveUser,
             resetUserForm,
             editUserConfig,
+            deleteUserConfig,
+            handleSaveGeneralSettings,
             openFoodDishModal,
             closeDishModal,
             editDishModal,
