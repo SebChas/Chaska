@@ -91,6 +91,12 @@
         </div>
 
         <div class="flex items-center space-x-2 md:space-x-3">
+            <!-- INDICADOR CLOUD EN VIVO -->
+            <div id="cloud-status-badge" class="flex items-center gap-1.5 px-2.5 py-1 bg-slate-950/80 border border-slate-800 rounded-xl text-xs font-semibold">
+                <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+                <span id="cloud-status-text" class="text-[11px] text-slate-300 hidden sm:inline">Modo Local</span>
+            </div>
+
             <div class="hidden lg:flex items-center space-x-4 bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-1.5 text-xs">
                 <div>
                     <span class="text-slate-400 text-[10px] block uppercase font-bold tracking-wider">Ventas Turno</span>
@@ -180,6 +186,9 @@
                     <div class="text-slate-400 flex justify-between items-center pt-1 border-t border-slate-900">
                         <span>Fondo Inicial:</span>
                         <span class="text-cyan-400 font-bold" id="sidebar-initial-cash">$0</span>
+                    </div>
+                    <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-900 truncate">
+                        ID: <span id="sidebar-cloud-uid" class="font-mono">Modo Local</span>
                     </div>
                 </div>
             </div>
@@ -281,7 +290,7 @@
                     <!-- Items de la Comanda -->
                     <div id="pos-ticket-items" class="flex-1 overflow-y-auto p-3 md:p-4 space-y-2.5"></div>
 
-                    <!-- Pie con Totales y Botones de Cobro y Cocina -->
+                    <!-- Pie con Totales y Botones de Cobro -->
                     <div class="p-3 md:p-4 bg-slate-950/90 border-t border-slate-800 space-y-2.5 shrink-0">
                         <div class="space-y-1 text-xs text-slate-300">
                             <div class="flex justify-between">
@@ -786,6 +795,23 @@
                                 <input type="text" id="setting-general-zones" required value="Salón Principal, Terraza, Barra" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
                             </div>
 
+                            <!-- CONFIGURADOR DIRECTO DE GOOGLE CLOUD / FIREBASE -->
+                            <div class="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-slate-300 font-bold flex items-center gap-1.5">
+                                        <i data-lucide="cloud" class="w-4 h-4 text-cyan-400"></i>
+                                        Credenciales de Google Cloud (Firebase Config)
+                                    </label>
+                                    <span class="text-[10px] text-slate-500">Sincronización en vivo entre celulares</span>
+                                </div>
+                                <textarea id="setting-firebase-config-input" rows="3" placeholder='Pega aquí el JSON de Firebase (ej: {"apiKey": "...", "projectId": "..."})' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-cyan-500"></textarea>
+                                <div class="flex justify-end">
+                                    <button type="button" onclick="saveManualFirebaseConfig()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs flex items-center gap-1 transition">
+                                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Conectar a Google Cloud
+                                    </button>
+                                </div>
+                            </div>
+
                             <div class="pt-2 flex gap-3">
                                 <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3 px-6 rounded-xl text-xs transition shadow-lg shadow-emerald-600/20 flex items-center gap-2">
                                     <i data-lucide="check" class="w-4 h-4"></i> Guardar Parámetros
@@ -802,7 +828,7 @@
         </main>
     </div>
 
-    <!-- MODAL PRE-CUENTA TÉRMICA (PRINTABLE) -->
+    <!-- MODALES EXISTENTES -->
     <div id="modal-prebill" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-5 shadow-2xl relative flex flex-col max-h-[90vh]">
             <button onclick="closePreBillModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white no-print">
@@ -820,7 +846,6 @@
         </div>
     </div>
 
-    <!-- MODAL TRANSFERIR MESA -->
     <div id="modal-move-table" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeMoveTableModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -834,7 +859,6 @@
         </div>
     </div>
 
-    <!-- MODAL JUNTAR MESAS -->
     <div id="modal-merge-table" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeMergeTableModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -848,7 +872,6 @@
         </div>
     </div>
 
-    <!-- MODAL INGRESO DE COMPRA -->
     <div id="modal-purchase" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closePurchaseModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -866,7 +889,6 @@
         </div>
     </div>
 
-    <!-- MODAL MERMA -->
     <div id="modal-waste" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeWasteModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -884,7 +906,6 @@
         </div>
     </div>
 
-    <!-- MODAL EGRESO DE CAJA CHICA -->
     <div id="modal-cash-movement" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeCashMovementModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -900,7 +921,6 @@
         </div>
     </div>
 
-    <!-- MODAL CIERRE CIEGO -->
     <div id="modal-blind-close" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[95vh] overflow-y-auto">
             <button onclick="closeBlindCloseModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -926,7 +946,6 @@
         </div>
     </div>
 
-    <!-- MODAL CHECKOUT / COBRO DE CUENTA -->
     <div id="modal-checkout" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeCheckoutModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -965,7 +984,6 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIRMACIÓN REINICIO -->
     <div id="modal-confirm-reset" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative text-center">
             <div class="w-12 h-12 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center mx-auto mb-3 border border-red-500/20">
@@ -980,7 +998,6 @@
         </div>
     </div>
 
-    <!-- MODAL NUEVO RESTAURANTE / SEDE -->
     <div id="modal-new-branch" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeNewBranchModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -1009,7 +1026,37 @@
     <!-- CONTENEDOR DE TOASTS -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            signInWithCustomToken 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            collection, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // =========================================================================
+        // CONFIGURACIÓN DIRECTA DE FIREBASE PARA GITHUB PAGES
+        // Pega aquí las credenciales que copiaste de Firebase Console (Paso 3)
+        // =========================================================================
+        const DIRECT_FIREBASE_CONFIG = null; 
+        /* Ejemplo:
+        const DIRECT_FIREBASE_CONFIG = {
+            apiKey: "AIzaSy...",
+            authDomain: "chaska-restaurante.firebaseapp.com",
+            projectId: "chaska-restaurante",
+            storageBucket: "chaska-restaurante.appspot.com",
+            messagingSenderId: "123456789...",
+            appId: "1:123456789:web:abcdef..."
+        };
+        */
+
         const DEFAULT_MULTI_STATE = {
             activeBranchId: 'chaska',
             branches: {
@@ -1084,7 +1131,6 @@
                         109: [{ insumoId: 9, cantidad: 0.200 }]
                     },
                     inventoryMovements: [],
-                    kitchenOrders: [],
                     orders: [],
                     history: [],
                     activeCategory: 'Todos',
@@ -1159,7 +1205,6 @@
                         208: [{ insumoId: 8, cantidad: 1 }]
                     },
                     inventoryMovements: [],
-                    kitchenOrders: [],
                     orders: [],
                     history: [],
                     activeCategory: 'Todos',
@@ -1171,27 +1216,138 @@
             }
         };
 
-        let multiState = loadMultiState();
-        let appState = multiState.branches[multiState.activeBranchId] || multiState.branches['chaska'];
+        let multiState = JSON.parse(JSON.stringify(DEFAULT_MULTI_STATE));
+        let appState = multiState.branches[multiState.activeBranchId];
+        let auth = null;
+        let db = null;
+        let currentUser = null;
+        let isSyncingFromCloud = false;
 
-        function loadMultiState() {
-            const saved = localStorage.getItem('chaska_multibranch_v1');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    if (parsed.branches && parsed.activeBranchId && parsed.branches[parsed.activeBranchId]) {
-                        return parsed;
-                    }
-                } catch (e) {
-                    console.error("Error al cargar estado multi-sucursal:", e);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'chaska-pos-system';
+
+        async function initGoogleCloudRealtime() {
+            let firebaseConfig = DIRECT_FIREBASE_CONFIG;
+
+            if (!firebaseConfig && typeof __firebase_config !== 'undefined' && __firebase_config) {
+                try { firebaseConfig = JSON.parse(__firebase_config); } catch(e){}
+            } 
+            
+            if (!firebaseConfig) {
+                const manualConfigStr = localStorage.getItem('chaska_user_firebase_config');
+                if (manualConfigStr) {
+                    try { firebaseConfig = JSON.parse(manualConfigStr); } catch(e){}
                 }
             }
-            return JSON.parse(JSON.stringify(DEFAULT_MULTI_STATE));
+
+            const uidDisplay = document.getElementById('sidebar-cloud-uid');
+            const statusBadge = document.getElementById('cloud-status-badge');
+            const statusText = document.getElementById('cloud-status-text');
+            const statusDot = document.getElementById('cloud-status-dot');
+
+            if (!firebaseConfig) {
+                if (uidDisplay) uidDisplay.innerText = "Modo Local";
+                if (statusText) statusText.innerText = "Modo Local";
+                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-amber-400";
+                initApp();
+                return;
+            }
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                let userCred;
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    userCred = await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    userCred = await signInAnonymously(auth);
+                }
+
+                currentUser = userCred.user;
+                const fullUserId = currentUser.uid;
+
+                if (uidDisplay) uidDisplay.innerText = fullUserId.slice(0, 10) + '...';
+                if (statusBadge) {
+                    statusBadge.className = "flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/80 border border-emerald-500/50 rounded-xl text-xs font-semibold shadow-sm";
+                }
+                if (statusText) statusText.innerText = "Google Cloud En Vivo";
+                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+
+                listenToCloudBranches();
+            } catch (err) {
+                console.error("Error al autenticar o conectar con Google Cloud:", err);
+                if (uidDisplay) uidDisplay.innerText = "Error conexión";
+                if (statusText) statusText.innerText = "Desconectado";
+                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-red-400";
+                initApp();
+            }
+        }
+
+        function saveManualFirebaseConfig() {
+            const val = document.getElementById('setting-firebase-config-input').value.trim();
+            if (!val) {
+                showToast("Por favor pega el JSON con las credenciales de Firebase", "warning");
+                return;
+            }
+            try {
+                const parsed = JSON.parse(val);
+                if (!parsed.projectId) {
+                    throw new Error("El JSON debe contener al menos el campo projectId.");
+                }
+                localStorage.setItem('chaska_user_firebase_config', JSON.stringify(parsed));
+                showToast("Credenciales guardadas. Conectando con Google Cloud...", "success");
+                setTimeout(() => window.location.reload(), 1000);
+            } catch (e) {
+                showToast("El formato no es un JSON válido. Revisa comillas y llaves.", "error");
+            }
+        }
+
+        function listenToCloudBranches() {
+            if (!db || !currentUser) return;
+
+            const branchesCol = collection(db, 'artifacts', appId, 'public', 'data', 'restaurant_branches');
+
+            onSnapshot(branchesCol, async (snapshot) => {
+                if (snapshot.empty) {
+                    try {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'restaurant_branches', 'chaska'), DEFAULT_MULTI_STATE.branches.chaska);
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'restaurant_branches', 'chedario'), DEFAULT_MULTI_STATE.branches.chedario);
+                    } catch (seedErr) {
+                        console.error("Error inicializando datos en la nube:", seedErr);
+                    }
+                    return;
+                }
+
+                isSyncingFromCloud = true;
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data && data.id) {
+                        multiState.branches[data.id] = data;
+                    }
+                });
+
+                if (multiState.branches[multiState.activeBranchId]) {
+                    appState = multiState.branches[multiState.activeBranchId];
+                }
+
+                isSyncingFromCloud = false;
+                initApp();
+            }, (error) => {
+                console.error("Error en sincronización de Google Cloud:", error);
+                showToast("Conexión perdida con la nube. Reconectando...", "warning");
+            });
         }
 
         function saveState() {
             multiState.branches[multiState.activeBranchId] = appState;
-            localStorage.setItem('chaska_multibranch_v1', JSON.stringify(multiState));
+
+            if (db && currentUser && !isSyncingFromCloud) {
+                const branchDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'restaurant_branches', multiState.activeBranchId);
+                setDoc(branchDocRef, appState).catch(err => {
+                    console.error("Error guardando datos en Google Cloud:", err);
+                });
+            }
         }
 
         function renderBranchSelector() {
@@ -1266,7 +1422,7 @@
         function switchBranch(branchId) {
             if (!multiState.branches[branchId]) return;
 
-            saveState(); // Guardar cambios de la sede actual
+            saveState();
             multiState.activeBranchId = branchId;
             appState = multiState.branches[branchId];
             saveState();
@@ -1350,7 +1506,6 @@
             const branchId = name.toLowerCase().replace(/[^a-z0-9]/g, '') + '_' + Date.now().toString().slice(-4);
             const zones = rawZones.split(',').map(z => z.trim()).filter(z => z.length > 0);
 
-            // Clonar estructura base
             const newBranch = JSON.parse(JSON.stringify(DEFAULT_MULTI_STATE.branches.chaska));
             newBranch.id = branchId;
             newBranch.name = name;
@@ -1359,7 +1514,6 @@
             newBranch.settings.restaurantName = name;
             newBranch.settings.zones = zones.length > 0 ? zones : ['Salón Principal', 'Terraza'];
             newBranch.shift.cashMovements = [];
-            newBranch.kitchenOrders = [];
             newBranch.orders = [];
             newBranch.history = [];
 
@@ -1367,12 +1521,11 @@
             saveState();
 
             closeNewBranchModal();
-            showToast(`¡Nuevo restaurante ${name} agregado con éxito!`, "success");
+            showToast(`¡Nuevo restaurante ${name} agregado en Google Cloud!`, "success");
             renderSettingsBranchesList();
             renderBranchSelector();
         }
 
-        /* SONIDO GENERADO CON TONE.JS (CERO ARCHIVOS EXTERNOS) */
         let synth = null;
         function playChime(type = 'success') {
             if (!appState.settings.soundEnabled) return;
@@ -1386,16 +1539,14 @@
                 }
                 const now = Tone.now();
                 if (type === 'bell') {
-                    // Campana de cocina
                     synth.triggerAttackRelease(["E5", "G#5", "B5"], "8n", now);
                 } else if (type === 'cash') {
-                    // Caja registradora
                     synth.triggerAttackRelease(["C5", "G5", "C6"], "16n", now);
                 } else if (type === 'click') {
                     synth.triggerAttackRelease(["C5"], "32n", now);
                 }
             } catch (e) {
-                console.warn("Audio no iniciado por interacción de navegador", e);
+                console.warn("Audio no iniciado", e);
             }
         }
 
@@ -1863,7 +2014,7 @@
                         <span class="font-black text-slate-200 text-xs">$${(item.price * item.qty).toLocaleString()}</span>
                     </div>
 
-                    <input type="text" value="${item.notes || ''}" placeholder="Nota cocina (ej: bife a punto, sin cebolla)..." 
+                    <input type="text" value="${item.notes || ''}" placeholder="Nota cocina (ej: bife a punto, sin sal)..." 
                         onchange="updateItemNote(${idx}, this.value)"
                         class="w-full bg-slate-900 border border-slate-800 rounded-lg text-[10px] px-2 py-1 text-slate-300 focus:outline-none focus:border-chaska-500">
 
@@ -2122,7 +2273,7 @@
             closeMergeTableModal();
             renderTables(appState.activeZoneFilter || 'all');
             renderPosOrderTicket();
-            showToast(`¡Mesas unificadas! El consumo de ${sourceTable.number} se integró a ${targetTable.number}`, "success");
+            showToast(`¡Mesas unificadas! ${sourceTable.number} se sumó a ${targetTable.number}`, "success");
         }
 
         function openPreBillModal() {
@@ -2504,7 +2655,7 @@
             resultContainer.innerHTML = `
                 <div class="border-b border-slate-800 pb-2">
                     <h4 class="font-extrabold text-white text-sm">Auditoría de Cuadratura a Ciegas</h4>
-                    <p class="text-[11px] text-slate-400">Comparación entre conteo físico y sistema.</p>
+                    <p class="text-[11px] text-slate-400">Comparación entre conteo físico y sistema en la nube.</p>
                 </div>
 
                 <div class="space-y-2 text-xs">
@@ -2538,7 +2689,7 @@
         }
 
         function finalizeShiftClose() {
-            showToast("Turno cerrado con éxito. Historial y arqueo guardados.", "success");
+            showToast("Turno cerrado con éxito. Registros actualizados en Google Cloud.", "success");
             closeBlindCloseModal();
             appState.history = [];
             appState.shift.cashMovements = [];
@@ -2823,7 +2974,6 @@
             document.getElementById('report-total-tips').innerText = `$${totalTips.toLocaleString()}`;
             document.getElementById('report-gross-profit').innerText = `$${Math.round(totalSales * 0.65).toLocaleString()}`;
 
-            // Ranking de platos vendidos
             const dishCounts = {};
             appState.history.forEach(h => {
                 if (h.items && Array.isArray(h.items)) {
@@ -2854,7 +3004,6 @@
                 });
             }
 
-            // Desglose de pagos
             const payContainer = document.getElementById('report-payment-breakdown');
             payContainer.innerHTML = '';
             const cashTotal = appState.history.filter(h => h.method === 'Efectivo').reduce((acc, h) => acc + h.total, 0);
@@ -2899,7 +3048,7 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            link.setAttribute("download", `ventas_chaska_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `ventas_${appState.name.toLowerCase()}_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -2935,6 +3084,12 @@
             document.getElementById('setting-general-name').value = appState.settings.restaurantName || appState.name || 'Software Chaska';
             document.getElementById('setting-general-tip').value = appState.settings.tipPercentage || 10;
             document.getElementById('setting-general-zones').value = (appState.settings.zones || []).join(', ');
+
+            const savedConfig = localStorage.getItem('chaska_user_firebase_config');
+            const configInput = document.getElementById('setting-firebase-config-input');
+            if (configInput && savedConfig) {
+                configInput.value = savedConfig;
+            }
         }
 
         function renderSettingsZoneSelect() {
@@ -3234,10 +3389,10 @@
         }
 
         function exportFullDatabaseJson() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(multiState, null, 2));
             const dl = document.createElement('a');
             dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", `chaska_respaldo_completo_${new Date().toISOString().slice(0,10)}.json`);
+            dl.setAttribute("download", `chaska_respaldo_cloud_${new Date().toISOString().slice(0,10)}.json`);
             dl.click();
             showToast("Copia de seguridad descargada", "success");
         }
@@ -3255,7 +3410,7 @@
             appState = multiState.branches[multiState.activeBranchId];
             saveState();
             closeResetConfirmModal();
-            showToast("Datos restablecidos para Chaska y Che Dario", "info");
+            showToast("Datos restablecidos en la nube para Chaska y Che Dario", "info");
             initApp();
         }
 
@@ -3282,17 +3437,80 @@
             renderInventoryMovementsTable();
             renderCashierView();
             renderSettingsView();
-
-            // Intervalo para actualizar minutero de mesas ocupadas
-            setInterval(() => {
-                if (!document.getElementById('view-floormap').classList.contains('hidden')) {
-                    renderTables(appState.activeZoneFilter || 'all');
-                }
-            }, 30000);
         }
 
+        Object.assign(window, {
+            switchBranch,
+            toggleBranchDropdown,
+            closeBranchDropdown,
+            switchTab,
+            toggleSoundFx,
+            saveManualFirebaseConfig,
+            openResetConfirmModal,
+            confirmResetData,
+            closeResetConfirmModal,
+            openCashMovementModal,
+            closeCashMovementModal,
+            handleSaveCashMovement,
+            openPurchaseModal,
+            closePurchaseModal,
+            handleSavePurchase,
+            openWasteModal,
+            closeWasteModal,
+            handleSaveWaste,
+            openBlindCloseModal,
+            closeBlindCloseModal,
+            calculateBlindCloseResult,
+            resetBlindCloseInputs,
+            finalizeShiftClose,
+            filterZone,
+            selectTable,
+            openMoveTableModal,
+            closeMoveTableModal,
+            updateMoveTargetOptions,
+            executeMoveTable,
+            openMergeTableModal,
+            closeMergeTableModal,
+            updateMergeTargetOptions,
+            executeMergeTable,
+            renderPosCatalog,
+            switchPosTable,
+            openPreBillModal,
+            closePreBillModal,
+            toggleTableBillStatus,
+            clearCurrentOrder,
+            updatePosTotals,
+            openCheckoutModal,
+            closeCheckoutModal,
+            setBillSplit,
+            selectPaymentMethod,
+            processPayment,
+            switchInventorySubtab,
+            ajustarStockInsumo,
+            exportReportsToCsv,
+            switchSettingsTab,
+            openNewBranchModal,
+            closeNewBranchModal,
+            handleCreateBranch,
+            handleSaveTable,
+            resetTableForm,
+            editTableConfig,
+            deleteTableConfig,
+            handleSaveUser,
+            resetUserForm,
+            editUserConfig,
+            deleteUserConfig,
+            setActiveUser,
+            handleSaveGeneralSettings,
+            exportFullDatabaseJson,
+            addItemToOrder,
+            changeItemQty,
+            removeItemFromOrder,
+            updateItemNote
+        });
+
         window.onload = function() {
-            initApp();
+            initGoogleCloudRealtime();
         };
     </script>
 </body>
