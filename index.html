@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chaska POS & Sistema de Gestión Gastronómica</title>
+    <title>Software Chaska - Gestión Gastronómica & POS (8 Mesas)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -26,16 +26,17 @@
             }
         }
     </script>
-    <!-- Lucide Icons CDN -->
+    <!-- Lucide Icons & Tone.js for Native Audio Effects -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .font-mono-receipt { font-family: 'Space Mono', monospace; }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.15); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
 
         @media print {
             body * { visibility: hidden; }
@@ -46,7 +47,7 @@
                 top: 0;
                 width: 80mm;
                 margin: 0;
-                padding: 10px;
+                padding: 8px;
                 color: #000 !important;
                 background: #fff !important;
             }
@@ -56,27 +57,41 @@
 </head>
 <body class="bg-slate-950 text-slate-100 h-full flex flex-col overflow-hidden selection:bg-chaska-500 selection:text-white">
 
-    <!-- HEADER -->
-    <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-2.5 flex items-center justify-between shrink-0 z-20">
-        <div class="flex items-center space-x-3">
-            <div class="bg-gradient-to-tr from-chaska-600 to-amber-500 p-2 rounded-xl text-white shadow-lg shadow-chaska-600/20 flex items-center justify-center font-black text-xl tracking-tighter">
-                CH
-            </div>
-            <div>
-                <h1 class="font-extrabold text-base md:text-lg leading-tight tracking-wide text-white flex items-center gap-2">
-                    <span id="header-brand-name">Chaska</span>
-                    <span class="bg-chaska-500/20 text-chaska-400 text-[10px] md:text-xs px-2 py-0.5 rounded-full font-semibold border border-chaska-500/30" id="header-tables-badge">8 Mesas</span>
-                    <span id="header-shift-status-badge" class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-emerald-500/30">Caja Abierta</span>
-                </h1>
-                <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Turno: <strong class="text-slate-200" id="header-active-user-name">Admin</strong> &bull; Salón &bull; Control Insumos
-                </p>
+    <!-- HEADER SUPERIOR -->
+    <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-3 md:px-5 py-2.5 flex items-center justify-between shrink-0 z-20">
+        <!-- SELECTOR DE RESTAURANTE EN LA ESQUINA SUPERIOR IZQUIERDA -->
+        <div class="relative flex items-center">
+            <button id="branch-selector-button" onclick="toggleBranchDropdown(event)" class="flex items-center gap-2.5 p-1.5 md:p-2 bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-chaska-500/50 rounded-2xl transition group shadow-md">
+                <div id="header-brand-avatar" class="bg-gradient-to-tr from-chaska-600 to-amber-500 w-9 h-9 md:w-10 md:h-10 rounded-xl text-white shadow-md shadow-chaska-600/30 flex items-center justify-center font-black text-sm md:text-base tracking-tighter shrink-0">
+                    CH
+                </div>
+                <div class="text-left pr-1.5">
+                    <div class="flex items-center gap-2">
+                        <span id="header-brand-name" class="font-extrabold text-sm md:text-base leading-tight tracking-wide text-white group-hover:text-chaska-400 transition">Chaska</span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition"></i>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-[10px] md:text-[11px] text-slate-400">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="header-tables-badge" class="font-semibold text-chaska-400">8 Mesas</span> &bull; 
+                        <span id="header-active-user-name" class="text-slate-300">Admin</span>
+                    </div>
+                </div>
+            </button>
+
+            <!-- MENÚ DESPLEGABLE DE RESTAURANTES -->
+            <div id="branch-dropdown-menu" class="hidden absolute top-full left-0 mt-2 w-72 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2.5 z-50 backdrop-blur-xl">
+                <div class="px-2.5 py-1.5 border-b border-slate-800/80 flex justify-between items-center text-xs">
+                    <span class="font-bold text-slate-400 uppercase text-[10px] tracking-wider">Restaurantes Activos</span>
+                    <button onclick="switchTab('settings'); switchSettingsTab('branches'); closeBranchDropdown();" class="text-chaska-400 hover:text-chaska-300 font-bold text-[10px] flex items-center gap-1">
+                        <i data-lucide="plus" class="w-3 h-3"></i> Gestionar
+                    </button>
+                </div>
+                <div id="branch-options-list" class="py-1.5 space-y-1"></div>
             </div>
         </div>
 
-        <div class="flex items-center space-x-3">
-            <div class="hidden sm:flex items-center space-x-4 bg-slate-950/70 border border-slate-800 rounded-xl px-3.5 py-1.5 text-xs">
+        <div class="flex items-center space-x-2 md:space-x-3">
+            <div class="hidden lg:flex items-center space-x-4 bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-1.5 text-xs">
                 <div>
                     <span class="text-slate-400 text-[10px] block uppercase font-bold tracking-wider">Ventas Turno</span>
                     <span class="font-extrabold text-emerald-400 text-sm" id="header-today-sales">$0</span>
@@ -93,63 +108,75 @@
                 </div>
             </div>
 
-            <button onclick="openCashMovementModal('OUT')" title="Registrar Egreso" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-xl font-bold text-xs transition">
+            <button onclick="openCashMovementModal('OUT')" title="Registrar Egreso de Caja" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 px-2.5 md:px-3 py-1.5 rounded-xl font-bold text-xs transition">
                 <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-                <span class="hidden md:inline">Egreso Caja</span>
+                <span class="hidden sm:inline">Egreso Caja</span>
             </button>
 
-            <button onclick="openPurchaseModal()" title="Registrar Compra" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl font-bold text-xs transition">
+            <button onclick="openPurchaseModal()" title="Ingresar Compra de Insumos" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-2.5 md:px-3 py-1.5 rounded-xl font-bold text-xs transition">
                 <i data-lucide="package-plus" class="w-4 h-4"></i>
-                <span class="hidden md:inline">Ingresar Compra</span>
+                <span class="hidden sm:inline">Comprar Insumos</span>
             </button>
 
-            <button onclick="resetDataToDefault()" title="Reiniciar Datos" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition">
+            <button onclick="toggleSoundFx()" id="btn-sound-toggle" title="Sonido Activo" class="text-slate-300 hover:text-white p-2 rounded-xl bg-slate-800/80 border border-slate-700 transition">
+                <i data-lucide="volume-2" class="w-4 h-4 text-chaska-400"></i>
+            </button>
+
+            <button onclick="openResetConfirmModal()" title="Reiniciar Datos Demo" class="text-slate-400 hover:text-red-400 p-2 rounded-xl hover:bg-slate-800 transition">
                 <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
             </button>
         </div>
     </header>
 
-    <!-- WRAPPER PRINCIPAL -->
+    <!-- CUERPO PRINCIPAL CON BARRA LATERAL -->
     <div class="flex flex-1 overflow-hidden relative">
 
-        <!-- NAV LATERAL -->
+        <!-- NAVEGACIÓN LATERAL -->
         <nav class="w-16 md:w-60 bg-slate-900 border-r border-slate-800 flex flex-col justify-between shrink-0 select-none z-10">
-            <div class="py-3 px-2 space-y-1">
-                <button onclick="switchTab('floormap')" id="nav-floormap" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition bg-chaska-600 text-white shadow-lg shadow-chaska-600/20">
+            <div class="py-3 px-2 space-y-1.5">
+                <button onclick="switchTab('floormap')" id="nav-floormap" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition bg-chaska-600 text-white shadow-lg shadow-chaska-600/30">
                     <i data-lucide="layout-grid" class="w-5 h-5 shrink-0"></i>
-                    <span class="hidden md:inline font-bold">Plano de Mesas</span>
+                    <span class="hidden md:inline font-bold">Plano de Mesas (8)</span>
                 </button>
 
-                <button onclick="switchTab('pos')" id="nav-pos" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 transition">
+                <button onclick="switchTab('pos')" id="nav-pos" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/70 hover:text-slate-200 transition">
                     <i data-lucide="shopping-bag" class="w-5 h-5 shrink-0"></i>
                     <span class="hidden md:inline">Comandero (POS)</span>
                 </button>
 
-                <button onclick="switchTab('inventory')" id="nav-inventory" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 transition">
+                <button onclick="switchTab('inventory')" id="nav-inventory" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/70 hover:text-slate-200 transition">
                     <i data-lucide="boxes" class="w-5 h-5 shrink-0"></i>
-                    <span class="hidden md:inline">Insumos, Compras & Mermas</span>
+                    <span class="hidden md:inline">Insumos & Escandallos</span>
                 </button>
 
-                <button onclick="switchTab('cashier')" id="nav-cashier" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 transition">
+                <button onclick="switchTab('cashier')" id="nav-cashier" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/70 hover:text-slate-200 transition">
                     <i data-lucide="receipt" class="w-5 h-5 shrink-0"></i>
-                    <span class="hidden md:inline">Caja, Egresos & Cierres</span>
+                    <span class="hidden md:inline">Caja & Arqueo Ciego</span>
                 </button>
 
-                <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 transition">
+                <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/70 hover:text-slate-200 transition">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 shrink-0"></i>
+                    <span class="hidden md:inline">Reportes & Métricas</span>
+                </button>
+
+                <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/70 hover:text-slate-200 transition">
                     <i data-lucide="settings" class="w-5 h-5 shrink-0"></i>
                     <span class="hidden md:inline">Configuración</span>
                 </button>
             </div>
 
             <div class="p-3 border-t border-slate-800 hidden md:block">
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] space-y-1">
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] space-y-1.5">
                     <div class="flex justify-between items-center text-slate-400">
                         <span>Terminal Chaska</span>
                         <span class="text-emerald-400 font-semibold flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Caja #1
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Online
                         </span>
                     </div>
-                    <div class="text-slate-400">Usuario: <span class="text-white font-medium" id="sidebar-user-name">Admin</span></div>
+                    <div class="text-slate-400 flex justify-between">
+                        <span>Operador:</span>
+                        <span class="text-white font-bold" id="sidebar-user-name">Admin</span>
+                    </div>
                     <div class="text-slate-400 flex justify-between items-center pt-1 border-t border-slate-900">
                         <span>Fondo Inicial:</span>
                         <span class="text-cyan-400 font-bold" id="sidebar-initial-cash">$0</span>
@@ -158,57 +185,63 @@
             </div>
         </nav>
 
-        <!-- VISTAS -->
+        <!-- CONTENEDOR CENTRAL DE PANTALLAS -->
         <main class="flex-1 bg-slate-950 overflow-hidden relative">
 
-            <!-- VISTA 1: PLANO DE MESAS -->
-            <div id="view-floormap" class="view-panel h-full flex flex-col p-4 md:p-6 overflow-y-auto">
+            <!-- VISTA 1: PLANO DE MESAS (8 MESAS) -->
+            <div id="view-floormap" class="view-panel h-full flex flex-col p-3 md:p-6 overflow-y-auto">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                     <div>
-                        <h2 class="text-xl font-extrabold text-white" id="floormap-heading">Salón Chaska</h2>
-                        <p class="text-xs text-slate-400">Toca cualquier mesa para comandar, cobrar, transferir a otra mesa o juntar con otra cuenta.</p>
+                        <h2 class="text-xl font-extrabold text-white flex items-center gap-2" id="floormap-heading">
+                            Salón Chaska
+                            <span class="text-xs bg-slate-800 text-slate-400 px-2.5 py-0.5 rounded-full font-mono font-medium border border-slate-700">8 Mesas Asignadas</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Monitorea el estado, tiempo de comanda en mesa y toca cualquiera para comandar o cobrar.</p>
                     </div>
 
                     <div class="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs overflow-x-auto" id="floormap-zone-filters"></div>
                 </div>
 
-                <div class="flex flex-wrap items-center justify-between gap-3 mb-5 bg-slate-900/60 border border-slate-800 p-3 rounded-2xl text-xs">
-                    <div class="flex items-center gap-5">
+                <!-- Resumen de estados y botones de acción rápida de salón -->
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-5 bg-slate-900/70 border border-slate-800 p-3 rounded-2xl text-xs">
+                    <div class="flex items-center gap-4 md:gap-6">
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
-                            <span class="text-slate-300">Libre (<span id="count-free">0</span>)</span>
+                            <span class="text-slate-300 font-medium">Libre (<span id="count-free" class="font-bold">0</span>)</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></span>
-                            <span class="text-slate-300">Ocupada (<span id="count-occupied">0</span>)</span>
+                            <span class="text-slate-300 font-medium">Ocupada (<span id="count-occupied" class="font-bold">0</span>)</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50"></span>
-                            <span class="text-slate-300">Pide Cuenta (<span id="count-bill">0</span>)</span>
+                            <span class="text-slate-300 font-medium">Pide Cuenta (<span id="count-bill" class="font-bold">0</span>)</span>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-2">
                         <button onclick="openMoveTableModal()" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 px-3 py-1.5 rounded-xl font-bold transition text-xs border border-cyan-500/30">
-                            <i data-lucide="arrow-right-left" class="w-3.5 h-3.5"></i> Mover Mesa
+                            <i data-lucide="arrow-right-left" class="w-3.5 h-3.5"></i> Transferir Mesa
                         </button>
                         <button onclick="openMergeTableModal()" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-purple-400 px-3 py-1.5 rounded-xl font-bold transition text-xs border border-purple-500/30">
-                            <i data-lucide="merge" class="w-3.5 h-3.5"></i> Juntar Mesas
+                            <i data-lucide="merge" class="w-3.5 h-3.5"></i> Juntar Cuentas
                         </button>
                     </div>
                 </div>
 
+                <!-- Grilla de las 8 mesas del restaurante -->
                 <div id="tables-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-12"></div>
             </div>
 
-            <!-- VISTA 2: POS -->
+            <!-- VISTA 2: COMANDERO / POS -->
             <div id="view-pos" class="view-panel hidden h-full flex flex-col md:flex-row overflow-hidden">
+                <!-- Catálogo de Menú -->
                 <div class="flex-1 flex flex-col h-full bg-slate-950 border-r border-slate-800 overflow-hidden">
                     <div class="p-3.5 border-b border-slate-800 space-y-3 shrink-0">
                         <div class="flex items-center justify-between gap-3">
                             <div class="relative flex-1">
                                 <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                <input type="text" id="pos-search" oninput="renderPosCatalog()" placeholder="Buscar en menú Chaska..." class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-chaska-500">
+                                <input type="text" id="pos-search" oninput="renderPosCatalog()" placeholder="Buscar platos, cortes, bebidas..." class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-chaska-500">
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-slate-400 font-semibold">Mesa:</span>
@@ -219,11 +252,12 @@
                         <div class="flex gap-2 overflow-x-auto pb-1" id="pos-category-pills"></div>
                     </div>
 
-                    <div id="pos-catalog-grid" class="flex-1 p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 overflow-y-auto align-content-start"></div>
+                    <div id="pos-catalog-grid" class="flex-1 p-3 md:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 overflow-y-auto align-content-start"></div>
                 </div>
 
+                <!-- Ticket / Comanda de la Mesa -->
                 <div class="w-full md:w-96 bg-slate-900 flex flex-col h-full shrink-0 border-l border-slate-800">
-                    <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+                    <div class="p-3 md:p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900">
                         <div>
                             <div class="flex items-center gap-2">
                                 <h3 class="font-extrabold text-white text-base" id="pos-ticket-table-title">Mesa 01</h3>
@@ -232,24 +266,23 @@
                             <p class="text-xs text-slate-400" id="pos-ticket-subtitle">Consumo en salón</p>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button onclick="openMoveTableModal(appState.selectedTableId)" title="Mover a otra mesa" class="text-slate-400 hover:text-cyan-400 p-2 rounded-lg hover:bg-slate-800 transition">
-                                <i data-lucide="arrow-right-left" class="w-4 h-4"></i>
-                            </button>
-                            <button onclick="openPreBillModal()" title="Generar Pre-cuenta Térmica" class="text-slate-400 hover:text-amber-400 p-2 rounded-lg hover:bg-slate-800 transition">
+                            <button onclick="openPreBillModal()" title="Imprimir Pre-cuenta Térmica" class="text-slate-400 hover:text-amber-400 p-2 rounded-lg hover:bg-slate-800 transition">
                                 <i data-lucide="printer" class="w-4 h-4"></i>
                             </button>
                             <button onclick="toggleTableBillStatus()" title="Marcar Pide Cuenta" class="text-slate-400 hover:text-blue-400 p-2 rounded-lg hover:bg-slate-800 transition">
                                 <i data-lucide="hand" class="w-4 h-4"></i>
                             </button>
-                            <button onclick="clearCurrentOrder()" title="Vaciar Comanda" class="text-slate-400 hover:text-red-400 p-2 rounded-lg hover:bg-slate-800 transition">
+                            <button onclick="clearCurrentOrder()" title="Anular Comanda" class="text-slate-400 hover:text-red-400 p-2 rounded-lg hover:bg-slate-800 transition">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
                     </div>
 
-                    <div id="pos-ticket-items" class="flex-1 overflow-y-auto p-4 space-y-2.5"></div>
+                    <!-- Items de la Comanda -->
+                    <div id="pos-ticket-items" class="flex-1 overflow-y-auto p-3 md:p-4 space-y-2.5"></div>
 
-                    <div class="p-4 bg-slate-950/90 border-t border-slate-800 space-y-3 shrink-0">
+                    <!-- Pie con Totales y Botones de Cobro y Cocina -->
+                    <div class="p-3 md:p-4 bg-slate-950/90 border-t border-slate-800 space-y-2.5 shrink-0">
                         <div class="space-y-1 text-xs text-slate-300">
                             <div class="flex justify-between">
                                 <span class="text-slate-400">Subtotal</span>
@@ -262,13 +295,13 @@
                                 </label>
                                 <span id="pos-tip" class="font-semibold text-emerald-400">$0</span>
                             </div>
-                            <div class="border-t border-slate-800 pt-2 flex justify-between items-center text-sm font-bold text-white">
+                            <div class="border-t border-slate-800 pt-1.5 flex justify-between items-center text-sm font-bold text-white">
                                 <span>TOTAL A COBRAR</span>
                                 <span id="pos-total" class="text-chaska-400 text-xl font-extrabold">$0</span>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-3 gap-2">
+                        <div class="grid grid-cols-3 gap-2 pt-1">
                             <button onclick="openPreBillModal()" class="col-span-1 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold py-3 px-2 rounded-xl text-xs flex items-center justify-center gap-1 transition border border-amber-500/30">
                                 <i data-lucide="printer" class="w-4 h-4"></i> Pre-cuenta
                             </button>
@@ -280,12 +313,12 @@
                 </div>
             </div>
 
-            <!-- VISTA 3: INVENTORY -->
-            <div id="view-inventory" class="view-panel hidden h-full flex flex-col p-4 md:p-6 overflow-y-auto space-y-6">
+            <!-- VISTA 4: INSUMOS & ESCANDALLOS -->
+            <div id="view-inventory" class="view-panel hidden h-full flex flex-col p-3 md:p-6 overflow-y-auto space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h2 class="text-xl font-extrabold text-white">Insumos, Compras & Mermas (Chaska)</h2>
-                        <p class="text-xs text-slate-400">Control de compras de bodega, registro de mermas y escandallos con costeo.</p>
+                        <h2 class="text-xl font-extrabold text-white">Insumos, Compras & Escandallos (Chaska)</h2>
+                        <p class="text-xs text-slate-400">Control de bodega con descuento automático de recetas y bloqueo de platos sin stock.</p>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2">
@@ -295,25 +328,23 @@
                         <button onclick="openWasteModal()" class="bg-red-600/80 hover:bg-red-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
                             <i data-lucide="trash-2" class="w-4 h-4"></i> Registrar Merma
                         </button>
-                        <button onclick="openSheetsModal()" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-                            <i data-lucide="sheet" class="w-4 h-4"></i> Sincronizar Sheets
-                        </button>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2 border-b border-slate-800 pb-2 text-xs">
                     <button onclick="switchInventorySubtab('stock')" id="inv-subtab-btn-stock" class="px-3.5 py-1.5 rounded-lg font-bold bg-chaska-600 text-white transition">Stock Actual de Insumos</button>
-                    <button onclick="switchInventorySubtab('recipes')" id="inv-subtab-btn-recipes" class="px-3.5 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition">Fichas Técnicas & Recetas</button>
+                    <button onclick="switchInventorySubtab('recipes')" id="inv-subtab-btn-recipes" class="px-3.5 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition">Fichas Técnicas & Costeo</button>
                     <button onclick="switchInventorySubtab('movements')" id="inv-subtab-btn-movements" class="px-3.5 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition">Historial Compras & Mermas</button>
                 </div>
 
+                <!-- Sub-panel Stock -->
                 <div id="inv-subpanel-stock" class="space-y-4">
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                         <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
                             <div class="flex items-center gap-2 font-bold text-white text-xs">
                                 <i data-lucide="package" class="w-4 h-4 text-emerald-400"></i> Existencias en Bodega & Costo Unitario
                             </div>
-                            <span class="text-[11px] text-slate-400">Los platos sin stock se bloquean automáticamente en el comandero</span>
+                            <span class="text-[11px] text-slate-400">Los platos sin ingredientes se marcan Agotado (86) de inmediato</span>
                         </div>
 
                         <div class="overflow-x-auto">
@@ -326,7 +357,7 @@
                                         <th class="p-3.5 text-center">Mínimo</th>
                                         <th class="p-3.5 text-right">Costo / Unidad</th>
                                         <th class="p-3.5 text-center">Estado</th>
-                                        <th class="p-3.5 text-center">Acciones Rápidas</th>
+                                        <th class="p-3.5 text-center">Ajuste Rápido</th>
                                     </tr>
                                 </thead>
                                 <tbody id="insumos-table-body" class="divide-y divide-slate-800/60"></tbody>
@@ -335,22 +366,21 @@
                     </div>
                 </div>
 
+                <!-- Sub-panel Recetas y Escandallos -->
                 <div id="inv-subpanel-recipes" class="hidden space-y-4">
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
                         <div class="flex justify-between items-center mb-4">
                             <div>
                                 <h3 class="font-bold text-white text-sm">Escandallos y Disponibilidad de Menú</h3>
-                                <p class="text-xs text-slate-400">Costo teórico calculado por porción e impacto en stock.</p>
+                                <p class="text-xs text-slate-400">Costo teórico calculado por porción y margen bruto sobre el precio de venta.</p>
                             </div>
-                            <span class="text-xs font-semibold text-chaska-400 bg-chaska-500/10 px-2.5 py-1 rounded-lg border border-chaska-500/20">
-                                Descuento automático por mesa
-                            </span>
                         </div>
 
                         <div id="recipes-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                     </div>
                 </div>
 
+                <!-- Sub-panel Historial de Movimientos -->
                 <div id="inv-subpanel-movements" class="hidden space-y-4">
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                         <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
@@ -379,12 +409,12 @@
                 </div>
             </div>
 
-            <!-- VISTA 4: CAJA -->
-            <div id="view-cashier" class="view-panel hidden h-full flex flex-col p-4 md:p-6 overflow-y-auto space-y-6">
+            <!-- VISTA 5: CAJA & ARQUEO CIEGO -->
+            <div id="view-cashier" class="view-panel hidden h-full flex flex-col p-3 md:p-6 overflow-y-auto space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h2 class="text-xl font-extrabold text-white">Caja, Egresos & Cierres de Turno</h2>
-                        <p class="text-xs text-slate-400">Control de apertura de turno, registro de gastos menores y arqueo ciego contra el dinero físico.</p>
+                        <p class="text-xs text-slate-400">Fondo inicial, registro de gastos de emergencia y arqueo ciego para evitar fraudes.</p>
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -397,6 +427,7 @@
                     </div>
                 </div>
 
+                <!-- Tarjetas métricas de caja -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-lg">
                         <div>
@@ -435,7 +466,7 @@
                         <div>
                             <span class="text-slate-400 text-xs font-semibold block uppercase tracking-wider">Efectivo Teórico</span>
                             <span class="text-2xl font-black text-chaska-400 mt-1 block" id="cashier-theoretical-cash">$0</span>
-                            <span class="text-[10px] text-slate-400 mt-0.5 block">Fondo + Efectivo - Egresos</span>
+                            <span class="text-[10px] text-slate-400 mt-0.5 block">Fondo + Efectivo - Gastos</span>
                         </div>
                         <div class="p-3 bg-chaska-500/10 text-chaska-400 rounded-xl border border-chaska-500/20">
                             <i data-lucide="calculator" class="w-6 h-6"></i>
@@ -443,6 +474,7 @@
                     </div>
                 </div>
 
+                <!-- Desglose por método de pago -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-xl flex justify-between items-center">
                         <div class="flex items-center gap-2">
@@ -461,12 +493,13 @@
                     <div class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-xl flex justify-between items-center">
                         <div class="flex items-center gap-2">
                             <i data-lucide="qr-code" class="w-4 h-4 text-purple-400"></i>
-                            <span class="text-xs text-slate-300 font-bold">QR / Transferencias:</span>
+                            <span class="text-xs text-slate-300 font-bold">QR / Transferencia:</span>
                         </div>
                         <span class="font-black text-purple-400 text-sm" id="cashier-breakdown-qr">$0</span>
                     </div>
                 </div>
 
+                <!-- Historial de cobros -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                     <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
                         <span class="font-bold text-white text-xs flex items-center gap-2">
@@ -492,12 +525,13 @@
                     </div>
                 </div>
 
+                <!-- Egresos menores de caja chica -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                     <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
                         <span class="font-bold text-white text-xs flex items-center gap-2">
                             <i data-lucide="arrow-up-right" class="w-4 h-4 text-amber-400"></i> Movimientos de Efectivo y Gastos de Caja Chica
                         </span>
-                        <button onclick="openCashMovementModal('OUT')" class="text-xs text-amber-400 hover:underline flex items-center gap-1">
+                        <button onclick="openCashMovementModal('OUT')" class="text-xs text-amber-400 hover:underline flex items-center gap-1 font-semibold">
                             + Agregar Egreso
                         </button>
                     </div>
@@ -510,7 +544,7 @@
                                     <th class="p-3.5 text-center">Tipo</th>
                                     <th class="p-3.5">Concepto / Motivo</th>
                                     <th class="p-3.5 text-right">Monto</th>
-                                    <th class="p-3.5">Registrado Por</th>
+                                    <th class="p-3.5">Operador</th>
                                 </tr>
                             </thead>
                             <tbody id="cashier-movements-table-body" class="divide-y divide-slate-800/60"></tbody>
@@ -519,52 +553,121 @@
                 </div>
             </div>
 
-            <!-- VISTA 5: CONFIGURACIÓN -->
-            <div id="view-settings" class="view-panel hidden h-full flex flex-col p-4 md:p-6 overflow-y-auto space-y-6">
+            <!-- VISTA 6: REPORTES & MÉTRICAS -->
+            <div id="view-reports" class="view-panel hidden h-full flex flex-col p-3 md:p-6 overflow-y-auto space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
-                        <h2 class="text-xl font-extrabold text-white">Configuración del Sistema Chaska</h2>
-                        <p class="text-xs text-slate-400">Personaliza la cantidad y ubicación de mesas, usuarios, PIN de turno y parámetros de cobro.</p>
+                        <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <i data-lucide="bar-chart-3" class="w-5 h-5 text-emerald-400"></i> Métricas Clave del Negocio
+                        </h2>
+                        <p class="text-xs text-slate-400">Rendimiento de las 8 mesas, platos estrella y ticket promedio para el dueño.</p>
                     </div>
 
-                    <div class="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
-                        <button onclick="switchSettingsTab('tables')" id="subnav-settings-tables" class="settings-tab-btn bg-chaska-600 text-white px-3 py-1.5 rounded-lg font-bold transition">
-                            Mesas & Zonas
-                        </button>
-                        <button onclick="switchSettingsTab('users')" id="subnav-settings-users" class="settings-tab-btn text-slate-400 hover:text-white px-3 py-1.5 rounded-lg font-bold transition">
-                            Usuarios & Roles
-                        </button>
-                        <button onclick="switchSettingsTab('general')" id="subnav-settings-general" class="settings-tab-btn text-slate-400 hover:text-white px-3 py-1.5 rounded-lg font-bold transition">
-                            Local & Parámetros
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportReportsToCsv()" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                            <i data-lucide="download" class="w-4 h-4"></i> Exportar Ventas CSV
                         </button>
                     </div>
                 </div>
 
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                        <span class="text-[11px] text-slate-400 block uppercase font-bold">Ticket Promedio por Mesa</span>
+                        <span class="text-2xl font-black text-emerald-400 mt-1 block" id="report-avg-ticket">$0</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                        <span class="text-[11px] text-slate-400 block uppercase font-bold">Rotación Total de Mesas</span>
+                        <span class="text-2xl font-black text-cyan-400 mt-1 block" id="report-rotation">0 giros</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                        <span class="text-[11px] text-slate-400 block uppercase font-bold">Propinas Acumuladas</span>
+                        <span class="text-2xl font-black text-amber-400 mt-1 block" id="report-total-tips">$0</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                        <span class="text-[11px] text-slate-400 block uppercase font-bold">Ganancia Bruta Teórica</span>
+                        <span class="text-2xl font-black text-chaska-400 mt-1 block" id="report-gross-profit">$0</span>
+                    </div>
+                </div>
+
+                <!-- Platos más vendidos y distribución -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+                        <h3 class="font-extrabold text-white text-sm mb-3 flex items-center gap-2">
+                            <i data-lucide="flame" class="w-4 h-4 text-chaska-500"></i> Ranking: Platos Más Vendidos
+                        </h3>
+                        <div id="report-top-dishes" class="space-y-2 text-xs"></div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+                        <h3 class="font-extrabold text-white text-sm mb-3 flex items-center gap-2">
+                            <i data-lucide="pie-chart" class="w-4 h-4 text-blue-400"></i> Ventas por Medio de Pago
+                        </h3>
+                        <div id="report-payment-breakdown" class="space-y-3 text-xs"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA 7: CONFIGURACIÓN -->
+            <div id="view-settings" class="view-panel hidden h-full flex flex-col p-3 md:p-6 overflow-y-auto space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-white">Configuración del Restaurante</h2>
+                        <p class="text-xs text-slate-400">Administra las mesas, usuarios con PIN, porcentaje de propina y respaldo de datos.</p>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+                        <button onclick="switchSettingsTab('tables')" id="subnav-settings-tables" class="settings-tab-btn bg-chaska-600 text-white px-3 py-1.5 rounded-lg font-bold transition">Mesas & Salón</button>
+                        <button onclick="switchSettingsTab('users')" id="subnav-settings-users" class="settings-tab-btn text-slate-400 hover:text-white px-3 py-1.5 rounded-lg font-bold transition">Usuarios & PIN</button>
+                        <button onclick="switchSettingsTab('general')" id="subnav-settings-general" class="settings-tab-btn text-slate-400 hover:text-white px-3 py-1.5 rounded-lg font-bold transition">Local & Tickets</button>
+                        <button onclick="switchSettingsTab('branches')" id="subnav-settings-branches" class="settings-tab-btn text-slate-400 hover:text-white px-3 py-1.5 rounded-lg font-bold transition">Restaurantes (Sedes)</button>
+                    </div>
+                </div>
+
+                <!-- Sub-tab Restaurantes / Sedes -->
+                <div id="settings-tab-branches" class="settings-subpanel hidden space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                            <div>
+                                <h3 class="font-extrabold text-white text-base flex items-center gap-2">
+                                    <i data-lucide="store" class="w-5 h-5 text-chaska-400"></i>
+                                    Restaurantes Configurados en el Software
+                                </h3>
+                                <p class="text-xs text-slate-400">Puedes alternar entre Chaska y Che Dario desde la esquina superior izquierda o desde este panel.</p>
+                            </div>
+                            <button onclick="openNewBranchModal()" class="bg-chaska-600 hover:bg-chaska-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-chaska-600/20">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i> Agregar Restaurante
+                            </button>
+                        </div>
+
+                        <div id="settings-branches-cards" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+                </div>
+
+                <!-- Sub-tab Mesas -->
                 <div id="settings-tab-tables" class="settings-subpanel space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                             <div class="flex items-center gap-2 text-white font-bold text-sm border-b border-slate-800 pb-2.5">
                                 <i data-lucide="plus-circle" class="w-4 h-4 text-chaska-500"></i>
-                                <span id="form-table-title">Agregar Nueva Mesa</span>
+                                <span id="form-table-title">Agregar / Editar Mesa</span>
                             </div>
 
                             <form onsubmit="handleSaveTable(event)" class="space-y-3 text-xs">
                                 <input type="hidden" id="setting-table-id" value="">
                                 <div>
-                                    <label class="text-slate-300 font-semibold block mb-1">Nombre o Número de Mesa</label>
-                                    <input type="text" id="setting-table-number" required placeholder="Ej: Mesa 09, Barra 2" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
+                                    <label class="text-slate-300 font-semibold block mb-1">Identificador de Mesa</label>
+                                    <input type="text" id="setting-table-number" required placeholder="Ej: Mesa 01" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label class="text-slate-300 font-semibold block mb-1">Zona / Salón</label>
-                                        <select id="setting-table-zone" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500 font-bold"></select>
+                                        <label class="text-slate-300 font-semibold block mb-1">Zona</label>
+                                        <select id="setting-table-zone" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-bold focus:outline-none focus:border-chaska-500"></select>
                                     </div>
                                     <div>
                                         <label class="text-slate-300 font-semibold block mb-1">Capacidad</label>
-                                        <input type="number" id="setting-table-capacity" required min="1" max="30" value="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
+                                        <input type="number" id="setting-table-capacity" required min="1" max="20" value="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
                                     </div>
                                 </div>
-
                                 <div class="flex gap-2 pt-2">
                                     <button type="button" onclick="resetTableForm()" id="btn-cancel-table-edit" class="hidden flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl font-bold transition">Cancelar</button>
                                     <button type="submit" id="btn-save-table" class="flex-1 bg-chaska-600 hover:bg-chaska-500 text-white py-2.5 rounded-xl font-extrabold transition shadow-lg shadow-chaska-600/20">Guardar Mesa</button>
@@ -575,9 +678,9 @@
                         <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
                             <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
                                 <span class="font-bold text-white text-xs flex items-center gap-2">
-                                    <i data-lucide="layout-grid" class="w-4 h-4 text-emerald-400"></i> Mesas Habilitadas (<span id="settings-table-count">0</span>)
+                                    <i data-lucide="layout-grid" class="w-4 h-4 text-emerald-400"></i> Mesas Habilitadas (<span id="settings-table-count">8</span>)
                                 </span>
-                                <span class="text-[11px] text-slate-400">Distribución física</span>
+                                <span class="text-[11px] text-slate-400">Diseñado especialmente para tu local de 8 mesas</span>
                             </div>
 
                             <div class="overflow-x-auto flex-1">
@@ -598,38 +701,38 @@
                     </div>
                 </div>
 
+                <!-- Sub-tab Usuarios -->
                 <div id="settings-tab-users" class="settings-subpanel hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                             <div class="flex items-center gap-2 text-white font-bold text-sm border-b border-slate-800 pb-2.5">
                                 <i data-lucide="user-plus" class="w-4 h-4 text-chaska-500"></i>
-                                <span id="form-user-title">Crear Nuevo Usuario</span>
+                                <span id="form-user-title">Crear Nuevo Operador</span>
                             </div>
 
                             <form onsubmit="handleSaveUser(event)" class="space-y-3 text-xs">
                                 <input type="hidden" id="setting-user-id" value="">
                                 <div>
                                     <label class="text-slate-300 font-semibold block mb-1">Nombre Completo</label>
-                                    <input type="text" id="setting-user-name" required placeholder="Ej: Valentina R." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
+                                    <input type="text" id="setting-user-name" required placeholder="Ej: Esteban Mozo" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
                                         <label class="text-slate-300 font-semibold block mb-1">Rol</label>
-                                        <select id="setting-user-role" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500 font-bold">
+                                        <select id="setting-user-role" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-bold">
                                             <option value="Administrador">Administrador</option>
                                             <option value="Mozo">Mozo / Salón</option>
-                                            <option value="Cajero">Cajero / Cobro</option>
+                                            <option value="Cajero">Cajero</option>
                                         </select>
                                     </div>
                                     <div>
                                         <label class="text-slate-300 font-semibold block mb-1">PIN (4 dígitos)</label>
-                                        <input type="text" id="setting-user-pin" maxlength="6" placeholder="Ej: 1234" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500 text-center font-mono">
+                                        <input type="text" id="setting-user-pin" maxlength="4" placeholder="1234" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white text-center font-mono">
                                     </div>
                                 </div>
-
                                 <div class="flex gap-2 pt-2">
                                     <button type="button" onclick="resetUserForm()" id="btn-cancel-user-edit" class="hidden flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl font-bold transition">Cancelar</button>
-                                    <button type="submit" id="btn-save-user" class="flex-1 bg-chaska-600 hover:bg-chaska-500 text-white py-2.5 rounded-xl font-extrabold transition shadow-lg shadow-chaska-600/20">Guardar Usuario</button>
+                                    <button type="submit" id="btn-save-user" class="flex-1 bg-chaska-600 hover:bg-chaska-500 text-white py-2.5 rounded-xl font-extrabold transition shadow-lg shadow-chaska-600/20">Guardar</button>
                                 </div>
                             </form>
                         </div>
@@ -637,11 +740,9 @@
                         <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
                             <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex justify-between items-center">
                                 <span class="font-bold text-white text-xs flex items-center gap-2">
-                                    <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i> Personal Habilitado (<span id="settings-user-count">0</span>)
+                                    <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i> Personal Habilitado (<span id="settings-user-count">3</span>)
                                 </span>
-                                <span class="text-[11px] text-slate-400">Haz clic en "Activar" para asumir turno</span>
                             </div>
-
                             <div class="overflow-x-auto flex-1">
                                 <table class="w-full text-left text-xs text-slate-300">
                                     <thead class="bg-slate-950 uppercase text-[10px] text-slate-400 font-bold border-b border-slate-800">
@@ -649,7 +750,7 @@
                                             <th class="p-3">Nombre</th>
                                             <th class="p-3">Rol</th>
                                             <th class="p-3 text-center">PIN</th>
-                                            <th class="p-3 text-center">Estado Turno</th>
+                                            <th class="p-3 text-center">Turno</th>
                                             <th class="p-3 text-right">Acciones</th>
                                         </tr>
                                     </thead>
@@ -660,33 +761,37 @@
                     </div>
                 </div>
 
+                <!-- Sub-tab General -->
                 <div id="settings-tab-general" class="settings-subpanel hidden space-y-6">
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl max-w-2xl space-y-4">
                         <div class="border-b border-slate-800 pb-3">
-                            <h3 class="font-extrabold text-white text-base">Identidad del Restaurante & Cobro</h3>
-                            <p class="text-xs text-slate-400">Parámetros impresos en comandas, tickets térmicos y pre-cuentas.</p>
+                            <h3 class="font-extrabold text-white text-base">Identidad del Local & Parámetros</h3>
+                            <p class="text-xs text-slate-400">Información reflejada en comandas, tickets y cálculos automáticos.</p>
                         </div>
 
                         <form onsubmit="handleSaveGeneralSettings(event)" class="space-y-4 text-xs">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="text-slate-300 font-semibold block mb-1">Nombre Comercial del Local</label>
+                                    <label class="text-slate-300 font-semibold block mb-1">Nombre Comercial</label>
                                     <input type="text" id="setting-general-name" required value="Chaska" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
                                 </div>
                                 <div>
-                                    <label class="text-slate-300 font-semibold block mb-1">% Propina Sugerida por Defecto</label>
+                                    <label class="text-slate-300 font-semibold block mb-1">% Propina Sugerida</label>
                                     <input type="number" id="setting-general-tip" min="0" max="30" value="10" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
                                 </div>
                             </div>
 
                             <div>
-                                <label class="text-slate-300 font-semibold block mb-1">Zonas o Áreas Disponibles (separadas por coma)</label>
-                                <input type="text" id="setting-general-zones" required value="Salón Principal, Terraza, Barra, Patio" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
+                                <label class="text-slate-300 font-semibold block mb-1">Zonas del Salón (separadas por coma)</label>
+                                <input type="text" id="setting-general-zones" required value="Salón Principal, Terraza, Barra" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
                             </div>
 
-                            <div class="pt-2">
+                            <div class="pt-2 flex gap-3">
                                 <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3 px-6 rounded-xl text-xs transition shadow-lg shadow-emerald-600/20 flex items-center gap-2">
                                     <i data-lucide="check" class="w-4 h-4"></i> Guardar Parámetros
+                                </button>
+                                <button type="button" onclick="exportFullDatabaseJson()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 font-bold py-3 px-4 rounded-xl text-xs flex items-center gap-2">
+                                    <i data-lucide="save" class="w-4 h-4"></i> Descargar Respaldo JSON
                                 </button>
                             </div>
                         </form>
@@ -697,7 +802,7 @@
         </main>
     </div>
 
-    <!-- MODALES -->
+    <!-- MODAL PRE-CUENTA TÉRMICA (PRINTABLE) -->
     <div id="modal-prebill" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-5 shadow-2xl relative flex flex-col max-h-[90vh]">
             <button onclick="closePreBillModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white no-print">
@@ -708,18 +813,19 @@
             <div id="printable-receipt-area" class="bg-white text-slate-900 p-4 rounded-xl border border-slate-200 overflow-y-auto flex-1 font-mono-receipt text-xs space-y-2 select-all shadow-inner"></div>
             <div class="flex gap-2 pt-3 no-print">
                 <button onclick="window.print()" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20">
-                    <i data-lucide="printer" class="w-4 h-4"></i> Imprimir Pre-cuenta
+                    <i data-lucide="printer" class="w-4 h-4"></i> Imprimir Ticket
                 </button>
                 <button onclick="closePreBillModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs">Cerrar</button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL TRANSFERIR MESA -->
     <div id="modal-move-table" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeMoveTableModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             <div class="flex items-center gap-2 mb-2 text-cyan-400"><i data-lucide="arrow-right-left" class="w-5 h-5"></i><h3 class="text-base font-extrabold text-white">Transferir Comanda entre Mesas</h3></div>
-            <p class="text-xs text-slate-400 mb-4">Mueve todos los platos y consumos abiertos de una mesa a otra mesa libre.</p>
+            <p class="text-xs text-slate-400 mb-4">Mueve todos los platos de una mesa a otra que esté libre sin perder la comanda.</p>
             <div class="space-y-3 mb-5 text-xs">
                 <div><label class="text-slate-300 font-semibold block mb-1">Mesa de Origen (Ocupada):</label><select id="move-source-table" onchange="updateMoveTargetOptions()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-bold"></select></div>
                 <div><label class="text-slate-300 font-semibold block mb-1">Mesa de Destino (Libre):</label><select id="move-target-table" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-bold"></select></div>
@@ -728,11 +834,12 @@
         </div>
     </div>
 
+    <!-- MODAL JUNTAR MESAS -->
     <div id="modal-merge-table" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeMergeTableModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            <div class="flex items-center gap-2 mb-2 text-purple-400"><i data-lucide="merge" class="w-5 h-5"></i><h3 class="text-base font-extrabold text-white">Juntar / Fusionar Comandas</h3></div>
-            <p class="text-xs text-slate-400 mb-4">Combina dos mesas ocupadas en una sola cuenta total.</p>
+            <div class="flex items-center gap-2 mb-2 text-purple-400"><i data-lucide="merge" class="w-5 h-5"></i><h3 class="text-base font-extrabold text-white">Juntar / Fusionar Cuentas</h3></div>
+            <p class="text-xs text-slate-400 mb-4">Combina dos mesas ocupadas en una sola cuenta compartida.</p>
             <div class="space-y-3 mb-5 text-xs">
                 <div><label class="text-slate-300 font-semibold block mb-1">Mesa Secundaria (Se fusionará):</label><select id="merge-source-table" onchange="updateMergeTargetOptions()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-bold"></select></div>
                 <div><label class="text-slate-300 font-semibold block mb-1">Mesa Principal (Receptora):</label><select id="merge-target-table" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-bold"></select></div>
@@ -741,292 +848,570 @@
         </div>
     </div>
 
+    <!-- MODAL INGRESO DE COMPRA -->
     <div id="modal-purchase" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closePurchaseModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             <div class="flex items-center gap-2 mb-2 text-emerald-400"><i data-lucide="package-plus" class="w-5 h-5"></i><h3 class="text-base font-extrabold text-white">Ingreso de Compra / Stock</h3></div>
-            <p class="text-xs text-slate-400 mb-4">Suma existencias al almacén y recalcula el costo unitario del insumo.</p>
+            <p class="text-xs text-slate-400 mb-4">Suma existencias al almacén y actualiza el costo unitario del insumo.</p>
             <form onsubmit="handleSavePurchase(event)" class="space-y-3 text-xs">
                 <div><label class="text-slate-300 font-semibold block mb-1">Insumo Recibido</label><select id="purchase-insumo-id" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-bold"></select></div>
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="text-slate-300 font-semibold block mb-1">Cantidad Ingresada</label><input type="number" step="0.01" min="0.01" id="purchase-qty" required placeholder="Ej: 10" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white"></div>
                     <div><label class="text-slate-300 font-semibold block mb-1">Costo Unitario ($)</label><input type="number" step="1" min="1" id="purchase-cost" required placeholder="Ej: 32000" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white"></div>
                 </div>
-                <div><label class="text-slate-300 font-semibold block mb-1">Proveedor / Factura</label><input type="text" id="purchase-notes" placeholder="Ej: Frigorífico Central" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white"></div>
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 pt-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Guardar Ingreso</button>
+                <div><label class="text-slate-300 font-semibold block mb-1">Proveedor / Factura</label><input type="text" id="purchase-notes" placeholder="Ej: Carnes Don Juan" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white"></div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 pt-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Guardar Compra</button>
             </form>
         </div>
     </div>
 
+    <!-- MODAL MERMA -->
     <div id="modal-waste" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeWasteModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             <div class="flex items-center gap-2 mb-2 text-red-400"><i data-lucide="trash-2" class="w-5 h-5"></i><h3 class="text-base font-extrabold text-white">Registrar Merma o Desperdicio</h3></div>
-            <p class="text-xs text-slate-400 mb-4">Descuenta insumos dañados, caducados o accidentados.</p>
+            <p class="text-xs text-slate-400 mb-4">Descuenta insumos vencidos, caídos o defectuosos para cuadrar el inventario.</p>
             <form onsubmit="handleSaveWaste(event)" class="space-y-3 text-xs">
                 <div><label class="text-slate-300 font-semibold block mb-1">Insumo Afectado</label><select id="waste-insumo-id" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-bold"></select></div>
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="text-slate-300 font-semibold block mb-1">Cantidad a Dar de Baja</label><input type="number" step="0.01" min="0.01" id="waste-qty" required placeholder="Ej: 1.5" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white"></div>
                     <div><label class="text-slate-300 font-semibold block mb-1">Motivo</label><select id="waste-reason" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-bold"><option value="Caducidad / Vencimiento">Caducidad / Vencimiento</option><option value="Rotura / Accidente">Rotura / Accidente</option><option value="Merma de Cocción / Defecto">Merma de Cocción / Defecto</option></select></div>
                 </div>
-                <div><label class="text-slate-300 font-semibold block mb-1">Detalle Adicional</label><input type="text" id="waste-notes" placeholder="Ej: Frasco roto..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white"></div>
-                <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 pt-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Asentar Baja</button>
+                <div><label class="text-slate-300 font-semibold block mb-1">Detalle</label><input type="text" id="waste-notes" placeholder="Ej: Caído en despacho..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white"></div>
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 pt-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Confirmar Merma</button>
             </form>
         </div>
     </div>
 
+    <!-- MODAL EGRESO DE CAJA CHICA -->
     <div id="modal-cash-movement" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeCashMovementModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             <div class="flex items-center gap-2 mb-2 text-amber-400"><i data-lucide="arrow-up-right" class="w-5 h-5"></i><h3 class="text-base font-extrabold text-white" id="modal-cash-movement-title">Registrar Egreso de Caja Chica</h3></div>
-            <p class="text-xs text-slate-400 mb-4">Salida o ingreso de efectivo del cajón no proveniente de comandas.</p>
+            <p class="text-xs text-slate-400 mb-4">Salida de dinero en efectivo de la gaveta.</p>
             <form onsubmit="handleSaveCashMovement(event)" class="space-y-3 text-xs">
                 <input type="hidden" id="cash-movement-type" value="OUT">
                 <div><label class="text-slate-300 font-semibold block mb-1">Monto ($)</label><input type="number" id="cash-movement-amount" required min="1" placeholder="Ej: 5000" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-bold text-base text-amber-400"></div>
                 <div><label class="text-slate-300 font-semibold block mb-1">Categoría</label><select id="cash-movement-category" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-bold"><option value="Pago Proveedor de Urgencia">Pago Proveedor de Urgencia</option><option value="Compra Hielo / Insumo Menor">Compra Hielo / Insumo Menor</option><option value="Farmacia / Limpieza">Farmacia / Limpieza</option><option value="Retiro de Efectivo / Caja Fuerte">Retiro de Efectivo / Caja Fuerte</option></select></div>
-                <div><label class="text-slate-300 font-semibold block mb-1">Descripción</label><input type="text" id="cash-movement-desc" placeholder="Ej: Compra de hielo" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white"></div>
-                <button type="submit" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-amber-600/20 pt-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Confirmar Movimiento</button>
+                <div><label class="text-slate-300 font-semibold block mb-1">Descripción</label><input type="text" id="cash-movement-desc" placeholder="Ej: Bolsas de hielo para barra" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white"></div>
+                <button type="submit" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-amber-600/20 pt-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Guardar Movimiento</button>
             </form>
         </div>
     </div>
 
+    <!-- MODAL CIERRE CIEGO -->
     <div id="modal-blind-close" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[95vh] overflow-y-auto">
             <button onclick="closeBlindCloseModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             <div class="flex items-center gap-2 mb-2 text-cyan-400"><i data-lucide="lock" class="w-5 h-5"></i><h3 class="text-base font-extrabold text-white">Cierre Ciego de Turno & Arqueo</h3></div>
-            <p class="text-xs text-slate-400 mb-4">Ingresa los montos físicos para comparar contra el sistema.</p>
+            <p class="text-xs text-slate-400 mb-4">El cajero declara lo que cuenta en físico sin ver las cifras esperadas.</p>
 
             <div id="blind-input-section" class="space-y-4 text-xs">
                 <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-                    <div><label class="text-slate-300 font-bold block mb-1">Efectivo Contado ($):</label><input type="number" id="blind-counted-cash" placeholder="Efectivo físico" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-base font-mono font-bold text-emerald-400"></div>
-                    <div><label class="text-slate-300 font-bold block mb-1">Vouchers Tarjeta ($):</label><input type="number" id="blind-counted-card" placeholder="Tarjetas POS terminal" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-base font-mono font-bold text-blue-400"></div>
-                    <div><label class="text-slate-300 font-bold block mb-1">Comprobantes QR ($):</label><input type="number" id="blind-counted-qr" placeholder="Cobros digitales" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-base font-mono font-bold text-purple-400"></div>
+                    <div><label class="text-slate-300 font-bold block mb-1">Efectivo Contado en Gaveta ($):</label><input type="number" id="blind-counted-cash" placeholder="Total billetes y monedas" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-base font-mono font-bold text-emerald-400"></div>
+                    <div><label class="text-slate-300 font-bold block mb-1">Vouchers Tarjeta ($):</label><input type="number" id="blind-counted-card" placeholder="Total terminales POSNET" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-base font-mono font-bold text-blue-400"></div>
+                    <div><label class="text-slate-300 font-bold block mb-1">Comprobantes QR / Transferencias ($):</label><input type="number" id="blind-counted-qr" placeholder="Total MercadoPago / Bancos" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-base font-mono font-bold text-purple-400"></div>
                 </div>
-                <button onclick="calculateBlindCloseResult()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold py-3.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-600/20"><i data-lucide="calculator" class="w-4 h-4"></i> Calcular Arqueo</button>
+                <button onclick="calculateBlindCloseResult()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold py-3.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-600/20"><i data-lucide="calculator" class="w-4 h-4"></i> Auditar Cuadratura</button>
             </div>
 
             <div id="blind-result-section" class="hidden space-y-4 text-xs pt-2">
                 <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3" id="blind-result-card"></div>
                 <div class="flex gap-2">
-                    <button onclick="finalizeShiftClose()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2"><i data-lucide="check-check" class="w-4 h-4"></i> Confirmar Cierre</button>
-                    <button onclick="resetBlindCloseInputs()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-3 rounded-xl text-xs">Recalcular</button>
+                    <button onclick="finalizeShiftClose()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2"><i data-lucide="check-check" class="w-4 h-4"></i> Cerrar Turno e Imprimir Acta</button>
+                    <button onclick="resetBlindCloseInputs()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-3 rounded-xl text-xs">Recontar</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- MODAL CHECKOUT / COBRO DE CUENTA -->
     <div id="modal-checkout" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeCheckoutModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             <h3 class="text-lg font-extrabold text-white mb-1">Cobro de Mesa - Chaska</h3>
-            <p class="text-xs text-slate-400 mb-4">Selecciona método de pago para liberar la mesa y descontar insumos.</p>
+            <p class="text-xs text-slate-400 mb-4">Elige medio de pago. Los insumos se descuentan automáticamente.</p>
 
             <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 mb-4 space-y-1.5 text-xs">
                 <div class="flex justify-between text-slate-400"><span>Ubicación</span><span id="checkout-table-name" class="text-white font-bold">Mesa 01</span></div>
                 <div class="flex justify-between text-slate-400"><span>Subtotal Consumos</span><span id="checkout-subtotal-info" class="text-white font-medium">$0</span></div>
-                <div class="flex justify-between text-slate-400"><span>Propina Agregada</span><span id="checkout-tip-info" class="text-emerald-400 font-medium">$0</span></div>
-                <div class="flex justify-between text-base font-black text-white border-t border-slate-800 pt-2 mt-2"><span>Monto Total:</span><span id="checkout-total-amount" class="text-emerald-400">$0</span></div>
+                <div class="flex justify-between text-slate-400"><span>Propina</span><span id="checkout-tip-info" class="text-emerald-400 font-medium">$0</span></div>
+                <div class="flex justify-between text-base font-black text-white border-t border-slate-800 pt-2 mt-2"><span>TOTAL A COBRAR:</span><span id="checkout-total-amount" class="text-emerald-400 text-lg">$0</span></div>
             </div>
 
+            <!-- División de cuenta -->
             <div class="mb-4">
                 <label class="text-xs text-slate-300 font-bold block mb-1">Dividir Cuenta</label>
-                <div class="grid grid-cols-3 gap-2">
+                <div class="grid grid-cols-4 gap-2">
                     <button onclick="setBillSplit(1)" class="split-btn bg-chaska-600 text-white text-xs py-1.5 rounded-lg border border-chaska-500 font-bold">1 Pago</button>
-                    <button onclick="setBillSplit(2)" class="split-btn bg-slate-800 text-slate-300 text-xs py-1.5 rounded-lg border border-slate-700 font-medium">2 Personas</button>
-                    <button onclick="setBillSplit(4)" class="split-btn bg-slate-800 text-slate-300 text-xs py-1.5 rounded-lg border border-slate-700 font-medium">4 Personas</button>
+                    <button onclick="setBillSplit(2)" class="split-btn bg-slate-800 text-slate-300 text-xs py-1.5 rounded-lg border border-slate-700 font-medium">2 Pers.</button>
+                    <button onclick="setBillSplit(3)" class="split-btn bg-slate-800 text-slate-300 text-xs py-1.5 rounded-lg border border-slate-700 font-medium">3 Pers.</button>
+                    <button onclick="setBillSplit(4)" class="split-btn bg-slate-800 text-slate-300 text-xs py-1.5 rounded-lg border border-slate-700 font-medium">4 Pers.</button>
                 </div>
             </div>
 
+            <!-- Medios de Pago -->
             <div class="mb-5">
                 <label class="text-xs text-slate-300 font-bold block mb-2">Método de Pago</label>
                 <div class="grid grid-cols-3 gap-2">
                     <button onclick="selectPaymentMethod('Efectivo')" class="pay-method-btn bg-slate-800 border-2 border-chaska-500 p-3 rounded-xl flex flex-col items-center justify-center gap-1.5 text-xs text-white"><i data-lucide="banknote" class="w-5 h-5 text-emerald-400"></i><span>Efectivo</span></button>
                     <button onclick="selectPaymentMethod('Tarjeta')" class="pay-method-btn bg-slate-800 border-2 border-transparent p-3 rounded-xl flex flex-col items-center justify-center gap-1.5 text-xs text-white"><i data-lucide="credit-card" class="w-5 h-5 text-blue-400"></i><span>Tarjeta</span></button>
-                    <button onclick="selectPaymentMethod('QR / Transferencia')" class="pay-method-btn bg-slate-800 border-2 border-transparent p-3 rounded-xl flex flex-col items-center justify-center gap-1.5 text-xs text-white"><i data-lucide="qr-code" class="w-5 h-5 text-purple-400"></i><span>QR / Transf.</span></button>
+                    <button onclick="selectPaymentMethod('QR / Transferencia')" class="pay-method-btn bg-slate-800 border-2 border-transparent p-3 rounded-xl flex flex-col items-center justify-center gap-1.5 text-xs text-white"><i data-lucide="qr-code" class="w-5 h-5 text-purple-400"></i><span>QR / Alias</span></button>
                 </div>
             </div>
 
-            <button onclick="processPayment()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3.5 rounded-xl text-xs transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Finalizar Venta y Liberar Mesa</button>
+            <button onclick="processPayment()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3.5 rounded-xl text-xs transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Finalizar Cobro y Liberar Mesa</button>
         </div>
     </div>
 
-    <div id="modal-sheets" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
-            <button onclick="closeSheetsModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-
-            <div class="flex items-center gap-2 mb-2">
-                <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20"><i data-lucide="sheet" class="w-5 h-5"></i></div>
-                <div>
-                    <h3 class="text-base font-extrabold text-white">Sincronización con Google Sheets</h3>
-                    <p class="text-xs text-slate-400">Planilla asociada de escandallos Chaska</p>
-                </div>
+    <!-- MODAL CONFIRMACIÓN REINICIO -->
+    <div id="modal-confirm-reset" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative text-center">
+            <div class="w-12 h-12 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center mx-auto mb-3 border border-red-500/20">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
             </div>
-
-            <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2 text-xs mb-4">
-                <div class="flex items-center justify-between">
-                    <span class="text-slate-300 font-bold">Planilla Asociada:</span>
-                    <a href="https://docs.google.com/spreadsheets/d/1QuhE6P5KmF4hqpVG_Kho-fQUbBywaRqWMENFaGkjjuc/edit?gid=0#gid=0" target="_blank" class="text-emerald-400 hover:underline flex items-center gap-1 text-[11px]">
-                        Abrir Hoja <i data-lucide="external-link" class="w-3 h-3"></i>
-                    </a>
-                </div>
-                <p class="text-slate-400 text-[11px] leading-relaxed">
-                    Asegúrate de que la hoja esté en modo <strong class="text-white">Cualquier persona con el enlace (Lector)</strong> en Google Sheets para permitir la descarga directa desde el navegador.
-                </p>
-            </div>
-
-            <div class="space-y-3 mb-4">
-                <div>
-                    <label class="text-[11px] text-slate-300 font-semibold block mb-1">Enlace del Google Sheet:</label>
-                    <input type="url" id="sheets-url-input" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500" value="https://docs.google.com/spreadsheets/d/1QuhE6P5KmF4hqpVG_Kho-fQUbBywaRqWMENFaGkjjuc/edit?gid=0#gid=0">
-                </div>
-            </div>
-
+            <h3 class="text-base font-extrabold text-white mb-1">¿Reiniciar Datos a Cero?</h3>
+            <p class="text-xs text-slate-400 mb-5">Se restablecerán las 8 mesas, platos e insumos predeterminados del sistema Chaska.</p>
             <div class="flex gap-2">
-                <button onclick="syncGoogleSheetsFromUrl()" id="btn-sync-submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2">
-                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Sincronizar Insumos Ahora
-                </button>
-                <button onclick="downloadDirectCsvBackup()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-2.5 rounded-xl text-xs flex items-center gap-1">
-                    <i data-lucide="download" class="w-4 h-4"></i> Descargar CSV
-                </button>
+                <button onclick="confirmResetData()" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-xl text-xs transition">Sí, Reiniciar</button>
+                <button onclick="closeResetConfirmModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs">Cancelar</button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL NUEVO RESTAURANTE / SEDE -->
+    <div id="modal-new-branch" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeNewBranchModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="flex items-center gap-2 mb-2 text-chaska-400"><i data-lucide="store" class="w-5 h-5"></i><h3 class="text-base font-extrabold text-white">Agregar Nuevo Restaurante</h3></div>
+            <p class="text-xs text-slate-400 mb-4">Se creará un nuevo perfil independiente con sus 8 mesas, comandas y caja propia.</p>
+            <form onsubmit="handleCreateBranch(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="text-slate-300 font-semibold block mb-1">Nombre Comercial</label>
+                    <input type="text" id="new-branch-name" required placeholder="Ej: Che Dario Parrilla" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
+                </div>
+                <div>
+                    <label class="text-slate-300 font-semibold block mb-1">Iniciales (2 o 3 letras)</label>
+                    <input type="text" id="new-branch-initials" maxlength="3" required placeholder="CD" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-mono uppercase focus:outline-none focus:border-chaska-500">
+                </div>
+                <div>
+                    <label class="text-slate-300 font-semibold block mb-1">Zonas del Salón (separadas por coma)</label>
+                    <input type="text" id="new-branch-zones" required value="Salón Bodegón, Vereda, Patio Cervecero" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-chaska-500">
+                </div>
+                <button type="submit" class="w-full bg-chaska-600 hover:bg-chaska-500 text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-chaska-600/20 pt-2">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> Crear Restaurante
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR DE TOASTS -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
-        const DEFAULT_DATA = {
-            settings: {
-                restaurantName: 'Chaska',
-                tipPercentage: 10,
-                zones: ['Salón Principal', 'Terraza', 'Barra', 'Patio']
-            },
-            shift: {
-                isOpen: true,
-                openedAt: new Date().toISOString(),
-                initialCash: 25000,
-                cashMovements: []
-            },
-            users: [
-                { id: 1, name: 'Esteban M.', role: 'Administrador', pin: '1234' },
-                { id: 2, name: 'Carlos M.', role: 'Mozo', pin: '0001' },
-                { id: 3, name: 'Lucía R.', role: 'Cajero', pin: '0002' }
-            ],
-            currentUserId: 1,
-            tables: [
-                { id: 1, number: 'Mesa 01', zone: 'Salón Principal', capacity: 2, status: 'free', diners: 0, orderId: null },
-                { id: 2, number: 'Mesa 02', zone: 'Salón Principal', capacity: 4, status: 'free', diners: 0, orderId: null },
-                { id: 3, number: 'Mesa 03', zone: 'Salón Principal', capacity: 4, status: 'free', diners: 0, orderId: null },
-                { id: 4, number: 'Mesa 04', zone: 'Salón Principal', capacity: 6, status: 'free', diners: 0, orderId: null },
-                { id: 5, number: 'Mesa 05', zone: 'Terraza', capacity: 2, status: 'free', diners: 0, orderId: null },
-                { id: 6, number: 'Mesa 06', zone: 'Terraza', capacity: 4, status: 'free', diners: 0, orderId: null },
-                { id: 7, number: 'Mesa 07', zone: 'Terraza', capacity: 4, status: 'free', diners: 0, orderId: null },
-                { id: 8, number: 'Mesa 08', zone: 'Barra', capacity: 2, status: 'free', diners: 0, orderId: null }
-            ],
-            categories: ['Todos', 'Platos Fuertes', 'Entradas', 'Parrilla Chaska', 'Bebidas', 'Postres'],
-            products: [
-                { id: 101, name: 'Milanesa Chaska', category: 'Platos Fuertes', price: 12500, icon: 'utensils' },
-                { id: 102, name: 'Hamburguesa Chaska Doble Carne', category: 'Platos Fuertes', price: 9800, icon: 'sandwich' },
-                { id: 103, name: 'Ojo de Bife 400g', category: 'Parrilla Chaska', price: 19500, icon: 'flame' },
-                { id: 104, name: 'Asado de Tira a las Brasas', category: 'Parrilla Chaska', price: 17900, icon: 'flame' },
-                { id: 105, name: 'Mollejas Crocantes al Limón', category: 'Entradas', price: 11200, icon: 'utensils' },
-                { id: 106, name: 'Provoleta Asada Chaska', category: 'Entradas', price: 7800, icon: 'utensils' },
-                { id: 107, name: 'Carpaccio de Lomo', category: 'Entradas', price: 9500, icon: 'utensils' },
-                { id: 108, name: 'Cesar Salad con Pollo Grill', category: 'Entradas', price: 8200, icon: 'utensils' },
-                { id: 109, name: 'Gazpacho Andaluz Tradicional', category: 'Entradas', price: 6500, icon: 'utensils' },
-                { id: 110, name: 'Panqueque con Dulce de Leche', category: 'Postres', price: 5400, icon: 'cake' },
-                { id: 111, name: 'Cerveza Artesanal IPA 500cc', category: 'Bebidas', price: 4500, icon: 'beer' },
-                { id: 112, name: 'Limonada Menta y Jengibre 500cc', category: 'Bebidas', price: 3800, icon: 'glass-water' }
-            ],
-            insumos: [
-                { id: 1, nombre: 'Lomo Vacuno', unidad: 'kg', stock: 18.0, min: 4.0, costo: 30000 },
-                { id: 2, nombre: 'Panko', unidad: 'kg', stock: 6.0, min: 1.5, costo: 10000 },
-                { id: 3, nombre: 'Sal Fina', unidad: 'kg', stock: 10.0, min: 2.0, costo: 1000 },
-                { id: 4, nombre: 'Huevo Fresco', unidad: 'un', stock: 80, min: 24, costo: 250 },
-                { id: 5, nombre: 'Harina de Trigo', unidad: 'kg', stock: 15.0, min: 3.0, costo: 1200 },
-                { id: 6, nombre: 'Ajinomoto', unidad: 'kg', stock: 2.0, min: 0.5, costo: 10000 },
-                { id: 7, nombre: 'Ají Molido', unidad: 'kg', stock: 2.0, min: 0.5, costo: 5000 },
-                { id: 8, nombre: 'Pimentón Dulce', unidad: 'kg', stock: 3.0, min: 0.5, costo: 10000 },
-                { id: 9, nombre: 'Ajo Fresco Picado', unidad: 'kg', stock: 4.0, min: 1.0, costo: 6667 },
-                { id: 10, nombre: 'Perejil Fresco Picado', unidad: 'kg', stock: 3.0, min: 0.8, costo: 6667 },
-                { id: 11, nombre: 'Aceite para Freír', unidad: 'lt', stock: 25.0, min: 5.0, costo: 2500 },
-                { id: 12, nombre: 'Carne Molida Premium', unidad: 'kg', stock: 12.0, min: 3.0, costo: 7000 },
-                { id: 13, nombre: 'Pan Brioche Hamburguesa', unidad: 'un', stock: 40, min: 10, costo: 450 },
-                { id: 14, nombre: 'Queso Cheddar', unidad: 'kg', stock: 3.5, min: 1.0, costo: 8500 },
-                { id: 15, nombre: 'Queso Provolone', unidad: 'kg', stock: 5.0, min: 1.0, costo: 11000 },
-                { id: 16, nombre: 'Mollejas de Vacuno', unidad: 'kg', stock: 6.0, min: 1.5, costo: 14000 }
-            ],
-            recetas: {
-                101: [
-                    { insumoId: 1, cantidad: 0.200 },
-                    { insumoId: 2, cantidad: 0.050 },
-                    { insumoId: 3, cantidad: 0.005 },
-                    { insumoId: 4, cantidad: 1 },
-                    { insumoId: 5, cantidad: 0.010 },
-                    { insumoId: 6, cantidad: 0.005 },
-                    { insumoId: 7, cantidad: 0.010 },
-                    { insumoId: 8, cantidad: 0.010 },
-                    { insumoId: 9, cantidad: 0.015 },
-                    { insumoId: 10, cantidad: 0.015 },
-                    { insumoId: 11, cantidad: 0.060 }
-                ],
-                102: [
-                    { insumoId: 12, cantidad: 0.200 },
-                    { insumoId: 13, cantidad: 1 },
-                    { insumoId: 14, cantidad: 0.040 }
-                ],
-                103: [
-                    { insumoId: 1, cantidad: 0.400 },
-                    { insumoId: 3, cantidad: 0.005 }
-                ],
-                105: [
-                    { insumoId: 16, cantidad: 0.250 },
-                    { insumoId: 3, cantidad: 0.005 }
-                ],
-                106: [
-                    { insumoId: 15, cantidad: 0.200 },
-                    { insumoId: 7, cantidad: 0.005 },
-                    { insumoId: 11, cantidad: 0.010 }
-                ]
-            },
-            inventoryMovements: [],
-            orders: [],
-            history: [],
-            activeCategory: 'Todos',
-            activeZoneFilter: 'all',
-            selectedTableId: 1,
-            selectedPaymentMethod: 'Efectivo',
-            selectedSplit: 1,
-            sheetsUrl: 'https://docs.google.com/spreadsheets/d/1QuhE6P5KmF4hqpVG_Kho-fQUbBywaRqWMENFaGkjjuc/edit?gid=0#gid=0'
+        const DEFAULT_MULTI_STATE = {
+            activeBranchId: 'chaska',
+            branches: {
+                chaska: {
+                    id: 'chaska',
+                    name: 'Chaska',
+                    shortCode: 'CH',
+                    themeGradient: 'from-orange-600 to-amber-500',
+                    settings: {
+                        restaurantName: 'Chaska',
+                        tipPercentage: 10,
+                        zones: ['Salón Principal', 'Terraza', 'Barra'],
+                        soundEnabled: true
+                    },
+                    shift: {
+                        isOpen: true,
+                        openedAt: new Date().toISOString(),
+                        initialCash: 35000,
+                        cashMovements: []
+                    },
+                    users: [
+                        { id: 1, name: 'Administrador Chaska', role: 'Administrador', pin: '1234' },
+                        { id: 2, name: 'Marcos (Mozo Salón)', role: 'Mozo', pin: '1111' },
+                        { id: 3, name: 'Camila (Caja)', role: 'Cajero', pin: '2222' }
+                    ],
+                    currentUserId: 1,
+                    tables: [
+                        { id: 1, number: 'Mesa 01', zone: 'Salón Principal', capacity: 2, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 2, number: 'Mesa 02', zone: 'Salón Principal', capacity: 4, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 3, number: 'Mesa 03', zone: 'Salón Principal', capacity: 4, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 4, number: 'Mesa 04', zone: 'Salón Principal', capacity: 6, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 5, number: 'Mesa 05', zone: 'Terraza', capacity: 2, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 6, number: 'Mesa 06', zone: 'Terraza', capacity: 4, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 7, number: 'Mesa 07', zone: 'Terraza', capacity: 4, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 8, number: 'Mesa 08', zone: 'Barra', capacity: 2, status: 'free', diners: 0, orderId: null, occupiedSince: null }
+                    ],
+                    categories: ['Todos', 'Parrilla Chaska', 'Especialidades', 'Entradas', 'Bebidas', 'Postres'],
+                    products: [
+                        { id: 101, name: 'Bife de Chorizo Chaska 400g', category: 'Parrilla Chaska', price: 18500, icon: 'flame' },
+                        { id: 102, name: 'Ojo de Bife con Papas Rústicas', category: 'Parrilla Chaska', price: 19800, icon: 'flame' },
+                        { id: 103, name: 'Milanesa Chaska Napolitana', category: 'Especialidades', price: 13500, icon: 'utensils' },
+                        { id: 104, name: 'Hamburguesa Doble Smash', category: 'Especialidades', price: 9500, icon: 'sandwich' },
+                        { id: 105, name: 'Provoleta Asada con Orégano', category: 'Entradas', price: 7900, icon: 'utensils' },
+                        { id: 106, name: 'Empanadas Criollas al Horno (x2)', category: 'Entradas', price: 4200, icon: 'utensils' },
+                        { id: 107, name: 'Papas Fritas Chaska Especiales', category: 'Entradas', price: 5800, icon: 'utensils' },
+                        { id: 108, name: 'Cerveza Tirada Artesanal 500cc', category: 'Bebidas', price: 4200, icon: 'beer' },
+                        { id: 109, name: 'Limonada con Menta & Jengibre', category: 'Bebidas', price: 3500, icon: 'glass-water' },
+                        { id: 110, name: 'Vino Malbec Selección 750ml', category: 'Bebidas', price: 14500, icon: 'wine' },
+                        { id: 111, name: 'Volcán de Chocolate con Helado', category: 'Postres', price: 5900, icon: 'cake' },
+                        { id: 112, name: 'Flan Casero con Dulce de Leche', category: 'Postres', price: 4800, icon: 'cake' }
+                    ],
+                    insumos: [
+                        { id: 1, nombre: 'Bife / Carne Vacuna', unidad: 'kg', stock: 22.0, min: 5.0, costo: 28000 },
+                        { id: 2, nombre: 'Papas Seleccionadas', unidad: 'kg', stock: 45.0, min: 10.0, costo: 1200 },
+                        { id: 3, nombre: 'Queso Provolone', unidad: 'kg', stock: 6.0, min: 2.0, costo: 11500 },
+                        { id: 4, nombre: 'Queso Mozzarella', unidad: 'kg', stock: 12.0, min: 3.0, costo: 8500 },
+                        { id: 5, nombre: 'Pan Brioche Hamburguesa', unidad: 'un', stock: 35, min: 10, costo: 500 },
+                        { id: 6, nombre: 'Huevo de Campo', unidad: 'un', stock: 60, min: 20, costo: 280 },
+                        { id: 7, nombre: 'Carne Molida Especial', unidad: 'kg', stock: 15.0, min: 4.0, costo: 7200 },
+                        { id: 8, nombre: 'Aceite de Girasol', unidad: 'lt', stock: 30.0, min: 8.0, costo: 2300 },
+                        { id: 9, nombre: 'Limones Frescos', unidad: 'kg', stock: 10.0, min: 2.0, costo: 1800 },
+                        { id: 10, nombre: 'Cerveza Barril Artesanal', unidad: 'lt', stock: 50.0, min: 15.0, costo: 2100 }
+                    ],
+                    recetas: {
+                        101: [{ insumoId: 1, cantidad: 0.400 }],
+                        102: [{ insumoId: 1, cantidad: 0.400 }, { insumoId: 2, cantidad: 0.250 }],
+                        103: [{ insumoId: 1, cantidad: 0.250 }, { insumoId: 4, cantidad: 0.120 }, { insumoId: 6, cantidad: 1 }, { insumoId: 8, cantidad: 0.050 }],
+                        104: [{ insumoId: 7, cantidad: 0.220 }, { insumoId: 5, cantidad: 1 }, { insumoId: 4, cantidad: 0.050 }],
+                        105: [{ insumoId: 3, cantidad: 0.200 }],
+                        107: [{ insumoId: 2, cantidad: 0.400 }, { insumoId: 8, cantidad: 0.060 }],
+                        108: [{ insumoId: 10, cantidad: 0.500 }],
+                        109: [{ insumoId: 9, cantidad: 0.200 }]
+                    },
+                    inventoryMovements: [],
+                    kitchenOrders: [],
+                    orders: [],
+                    history: [],
+                    activeCategory: 'Todos',
+                    activeZoneFilter: 'all',
+                    selectedTableId: 1,
+                    selectedPaymentMethod: 'Efectivo',
+                    selectedSplit: 1
+                },
+                chedario: {
+                    id: 'chedario',
+                    name: 'Che Dario',
+                    shortCode: 'CD',
+                    themeGradient: 'from-blue-600 to-indigo-500',
+                    settings: {
+                        restaurantName: 'Che Dario',
+                        tipPercentage: 10,
+                        zones: ['Salón Bodegón', 'Vereda', 'Patio Cervecero'],
+                        soundEnabled: true
+                    },
+                    shift: {
+                        isOpen: true,
+                        openedAt: new Date().toISOString(),
+                        initialCash: 40000,
+                        cashMovements: []
+                    },
+                    users: [
+                        { id: 1, name: 'Dario (Dueño & Admin)', role: 'Administrador', pin: '5555' },
+                        { id: 2, name: 'Gonzalo (Mozo Vereda)', role: 'Mozo', pin: '3333' },
+                        { id: 3, name: 'Flor (Caja Bodegón)', role: 'Cajero', pin: '4444' }
+                    ],
+                    currentUserId: 1,
+                    tables: [
+                        { id: 1, number: 'Mesa 01', zone: 'Salón Bodegón', capacity: 2, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 2, number: 'Mesa 02', zone: 'Salón Bodegón', capacity: 4, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 3, number: 'Mesa 03', zone: 'Salón Bodegón', capacity: 4, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 4, number: 'Mesa 04', zone: 'Salón Bodegón', capacity: 6, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 5, number: 'Mesa 05', zone: 'Vereda', capacity: 2, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 6, number: 'Mesa 06', zone: 'Vereda', capacity: 4, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 7, number: 'Mesa 07', zone: 'Vereda', capacity: 4, status: 'free', diners: 0, orderId: null, occupiedSince: null },
+                        { id: 8, number: 'Mesa 08', zone: 'Patio Cervecero', capacity: 4, status: 'free', diners: 0, orderId: null, occupiedSince: null }
+                    ],
+                    categories: ['Todos', 'Bodegón Che Dario', 'Pastas Caseras', 'Minutas', 'Bebidas & Pingüino', 'Postres'],
+                    products: [
+                        { id: 201, name: 'Milanesa Gigante a Caballo (Che Dario)', category: 'Bodegón Che Dario', price: 14900, icon: 'utensils' },
+                        { id: 202, name: 'Bife de Chorizo a Caballo con Fritas', category: 'Bodegón Che Dario', price: 18900, icon: 'flame' },
+                        { id: 203, name: 'Sorrentinos Caseros de Jamón y Queso', category: 'Pastas Caseras', price: 11900, icon: 'utensils' },
+                        { id: 204, name: 'Ravioles con Tuco y Estofado', category: 'Pastas Caseras', price: 12500, icon: 'utensils' },
+                        { id: 205, name: 'Tortilla de Papas Española Babé', category: 'Minutas', price: 8200, icon: 'utensils' },
+                        { id: 206, name: 'Empanadas de Carne Cortada a Cuchillo (x2)', category: 'Minutas', price: 4400, icon: 'utensils' },
+                        { id: 207, name: 'Vino de la Casa en Pingüino 1L', category: 'Bebidas & Pingüino', price: 6900, icon: 'wine' },
+                        { id: 208, name: 'Cerveza Rubia Clásica 1 Litro', category: 'Bebidas & Pingüino', price: 4900, icon: 'beer' },
+                        { id: 209, name: 'Gaseosa Línea Cola 500ml', category: 'Bebidas & Pingüino', price: 2600, icon: 'glass-water' },
+                        { id: 210, name: 'Flan Mixto con Crema & Dulce de Leche', category: 'Postres', price: 5200, icon: 'cake' },
+                        { id: 211, name: 'Budín de Pan Casero con Pasas', category: 'Postres', price: 4500, icon: 'cake' }
+                    ],
+                    insumos: [
+                        { id: 1, nombre: 'Nalga para Milanesas', unidad: 'kg', stock: 25.0, min: 6.0, costo: 11500 },
+                        { id: 2, nombre: 'Bife de Chorizo Vacuno', unidad: 'kg', stock: 18.0, min: 4.0, costo: 27000 },
+                        { id: 3, nombre: 'Papas Blancas', unidad: 'kg', stock: 60.0, min: 15.0, costo: 1100 },
+                        { id: 4, nombre: 'Huevos de Granja', unidad: 'un', stock: 120, min: 30, costo: 260 },
+                        { id: 5, nombre: 'Pan Rallado', unidad: 'kg', stock: 20.0, min: 5.0, costo: 1800 },
+                        { id: 6, nombre: 'Vino Tinto de Bodegón', unidad: 'lt', stock: 40.0, min: 10.0, costo: 2400 },
+                        { id: 7, nombre: 'Masa Sorrentinos & Relleno', unidad: 'kg', stock: 14.0, min: 4.0, costo: 6800 },
+                        { id: 8, nombre: 'Cerveza Litro Botella', unidad: 'un', stock: 36, min: 12, costo: 2200 }
+                    ],
+                    recetas: {
+                        201: [{ insumoId: 1, cantidad: 0.350 }, { insumoId: 4, cantidad: 2 }, { insumoId: 5, cantidad: 0.120 }, { insumoId: 3, cantidad: 0.350 }],
+                        202: [{ insumoId: 2, cantidad: 0.400 }, { insumoId: 4, cantidad: 2 }, { insumoId: 3, cantidad: 0.300 }],
+                        203: [{ insumoId: 7, cantidad: 0.300 }],
+                        205: [{ insumoId: 3, cantidad: 0.450 }, { insumoId: 4, cantidad: 4 }],
+                        207: [{ insumoId: 6, cantidad: 1.0 }],
+                        208: [{ insumoId: 8, cantidad: 1 }]
+                    },
+                    inventoryMovements: [],
+                    kitchenOrders: [],
+                    orders: [],
+                    history: [],
+                    activeCategory: 'Todos',
+                    activeZoneFilter: 'all',
+                    selectedTableId: 1,
+                    selectedPaymentMethod: 'Efectivo',
+                    selectedSplit: 1
+                }
+            }
         };
 
-        let appState = loadState();
+        let multiState = loadMultiState();
+        let appState = multiState.branches[multiState.activeBranchId] || multiState.branches['chaska'];
 
-        function loadState() {
-            const saved = localStorage.getItem('chaska_pos_complete_v2');
+        function loadMultiState() {
+            const saved = localStorage.getItem('chaska_multibranch_v1');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
-                    if (!parsed.settings) parsed.settings = DEFAULT_DATA.settings;
-                    if (!parsed.users) parsed.users = DEFAULT_DATA.users;
-                    if (!parsed.currentUserId) parsed.currentUserId = DEFAULT_DATA.currentUserId;
-                    if (!parsed.shift) parsed.shift = DEFAULT_DATA.shift;
-                    if (!parsed.inventoryMovements) parsed.inventoryMovements = [];
-                    return parsed;
-                } catch (e) {}
+                    if (parsed.branches && parsed.activeBranchId && parsed.branches[parsed.activeBranchId]) {
+                        return parsed;
+                    }
+                } catch (e) {
+                    console.error("Error al cargar estado multi-sucursal:", e);
+                }
             }
-            return JSON.parse(JSON.stringify(DEFAULT_DATA));
+            return JSON.parse(JSON.stringify(DEFAULT_MULTI_STATE));
         }
 
         function saveState() {
-            localStorage.setItem('chaska_pos_complete_v2', JSON.stringify(appState));
+            multiState.branches[multiState.activeBranchId] = appState;
+            localStorage.setItem('chaska_multibranch_v1', JSON.stringify(multiState));
         }
 
-        function resetDataToDefault() {
-            appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        function renderBranchSelector() {
+            const container = document.getElementById('branch-options-list');
+            const avatar = document.getElementById('header-brand-avatar');
+            const nameEl = document.getElementById('header-brand-name');
+            const tablesBadge = document.getElementById('header-tables-badge');
+
+            if (!container) return;
+
+            const activeBranch = multiState.branches[multiState.activeBranchId] || multiState.branches['chaska'];
+
+            if (avatar) {
+                avatar.innerText = activeBranch.shortCode || activeBranch.name.slice(0, 2).toUpperCase();
+                avatar.className = `bg-gradient-to-tr ${activeBranch.themeGradient || 'from-chaska-600 to-amber-500'} w-9 h-9 md:w-10 md:h-10 rounded-xl text-white shadow-md shadow-chaska-600/30 flex items-center justify-center font-black text-sm md:text-base tracking-tighter shrink-0`;
+            }
+            if (nameEl) nameEl.innerText = activeBranch.name;
+            if (tablesBadge) tablesBadge.innerText = `${activeBranch.tables.length} Mesas`;
+
+            container.innerHTML = '';
+
+            Object.values(multiState.branches).forEach(branch => {
+                const isActive = branch.id === multiState.activeBranchId;
+                const occupiedCount = branch.tables.filter(t => t.status !== 'free').length;
+
+                const item = document.createElement('button');
+                item.className = `w-full text-left p-2.5 rounded-xl flex items-center justify-between transition ${
+                    isActive ? 'bg-chaska-600/20 border border-chaska-500/40 text-white' : 'hover:bg-slate-800 text-slate-300'
+                }`;
+                item.onclick = () => switchBranch(branch.id);
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr ${branch.themeGradient || 'from-chaska-600 to-amber-500'} flex items-center justify-center font-black text-xs text-white">
+                            ${branch.shortCode || branch.name.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                            <span class="font-extrabold text-xs block text-white">${branch.name}</span>
+                            <span class="text-[10px] text-slate-400">${branch.tables.length} mesas &bull; ${occupiedCount} ocupadas</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        ${isActive ? '<span class="text-[9px] bg-chaska-500 text-white font-black px-1.5 py-0.5 rounded">ACTIVO</span>' : ''}
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            lucide.createIcons();
+        }
+
+        function toggleBranchDropdown(event) {
+            if (event) event.stopPropagation();
+            const menu = document.getElementById('branch-dropdown-menu');
+            if (!menu) return;
+            menu.classList.toggle('hidden');
+        }
+
+        function closeBranchDropdown() {
+            const menu = document.getElementById('branch-dropdown-menu');
+            if (menu) menu.classList.add('hidden');
+        }
+
+        window.addEventListener('click', (e) => {
+            const btn = document.getElementById('branch-selector-button');
+            const menu = document.getElementById('branch-dropdown-menu');
+            if (menu && !menu.classList.contains('hidden') && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+                closeBranchDropdown();
+            }
+        });
+
+        function switchBranch(branchId) {
+            if (!multiState.branches[branchId]) return;
+
+            saveState(); // Guardar cambios de la sede actual
+            multiState.activeBranchId = branchId;
+            appState = multiState.branches[branchId];
             saveState();
-            showToast("Datos restablecidos a la configuración base de Chaska", "info");
+
+            closeBranchDropdown();
+            playChime('click');
+            showToast(`Cambiado al restaurante: ${appState.name}`, "info");
+
             initApp();
+        }
+
+        function renderSettingsBranchesList() {
+            const container = document.getElementById('settings-branches-cards');
+            if (!container) return;
+            container.innerHTML = '';
+
+            Object.values(multiState.branches).forEach(branch => {
+                const isActive = branch.id === multiState.activeBranchId;
+                const totalSales = (branch.history || []).reduce((acc, h) => acc + h.total, 0);
+                const occupiedCount = branch.tables.filter(t => t.status !== 'free').length;
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-2xl border ${isActive ? 'border-chaska-500 bg-slate-950' : 'border-slate-800 bg-slate-950/60'} flex flex-col justify-between space-y-3`;
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr ${branch.themeGradient || 'from-chaska-600 to-amber-500'} flex items-center justify-center font-black text-white text-base">
+                                ${branch.shortCode || branch.name.slice(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                                <h4 class="font-extrabold text-white text-sm">${branch.name}</h4>
+                                <span class="text-[11px] text-slate-400">${branch.tables.length} Mesas &bull; ${branch.users.length} Operadores</span>
+                            </div>
+                        </div>
+                        ${isActive ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">En Operación</span>' : ''}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-xs bg-slate-900/80 p-2.5 rounded-xl border border-slate-800/80">
+                        <div>
+                            <span class="text-slate-400 text-[10px] block uppercase font-bold">Ventas Turno:</span>
+                            <span class="font-extrabold text-emerald-400 font-mono text-sm">$${totalSales.toLocaleString()}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 text-[10px] block uppercase font-bold">Mesas Ocupadas:</span>
+                            <span class="font-extrabold text-amber-400 font-mono text-sm">${occupiedCount} / ${branch.tables.length}</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-1 flex gap-2">
+                        ${isActive ? `
+                            <button disabled class="w-full bg-slate-800 text-slate-400 py-2 rounded-xl text-xs font-bold cursor-not-allowed">Restaurante Activo</button>
+                        ` : `
+                            <button onclick="switchBranch('${branch.id}')" class="w-full bg-chaska-600 hover:bg-chaska-500 text-white py-2 rounded-xl text-xs font-extrabold transition shadow-lg shadow-chaska-600/20">
+                                Entrar a ${branch.name}
+                            </button>
+                        `}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function openNewBranchModal() {
+            document.getElementById('modal-new-branch').classList.remove('hidden');
+        }
+
+        function closeNewBranchModal() {
+            document.getElementById('modal-new-branch').classList.add('hidden');
+        }
+
+        function handleCreateBranch(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-branch-name').value.trim();
+            const shortCode = document.getElementById('new-branch-initials').value.trim().toUpperCase();
+            const rawZones = document.getElementById('new-branch-zones').value;
+
+            if (!name || !shortCode) return;
+
+            const branchId = name.toLowerCase().replace(/[^a-z0-9]/g, '') + '_' + Date.now().toString().slice(-4);
+            const zones = rawZones.split(',').map(z => z.trim()).filter(z => z.length > 0);
+
+            // Clonar estructura base
+            const newBranch = JSON.parse(JSON.stringify(DEFAULT_MULTI_STATE.branches.chaska));
+            newBranch.id = branchId;
+            newBranch.name = name;
+            newBranch.shortCode = shortCode;
+            newBranch.themeGradient = 'from-purple-600 to-pink-500';
+            newBranch.settings.restaurantName = name;
+            newBranch.settings.zones = zones.length > 0 ? zones : ['Salón Principal', 'Terraza'];
+            newBranch.shift.cashMovements = [];
+            newBranch.kitchenOrders = [];
+            newBranch.orders = [];
+            newBranch.history = [];
+
+            multiState.branches[branchId] = newBranch;
+            saveState();
+
+            closeNewBranchModal();
+            showToast(`¡Nuevo restaurante ${name} agregado con éxito!`, "success");
+            renderSettingsBranchesList();
+            renderBranchSelector();
+        }
+
+        /* SONIDO GENERADO CON TONE.JS (CERO ARCHIVOS EXTERNOS) */
+        let synth = null;
+        function playChime(type = 'success') {
+            if (!appState.settings.soundEnabled) return;
+            try {
+                if (!synth) {
+                    synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                    synth.volume.value = -8;
+                }
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                const now = Tone.now();
+                if (type === 'bell') {
+                    // Campana de cocina
+                    synth.triggerAttackRelease(["E5", "G#5", "B5"], "8n", now);
+                } else if (type === 'cash') {
+                    // Caja registradora
+                    synth.triggerAttackRelease(["C5", "G5", "C6"], "16n", now);
+                } else if (type === 'click') {
+                    synth.triggerAttackRelease(["C5"], "32n", now);
+                }
+            } catch (e) {
+                console.warn("Audio no iniciado por interacción de navegador", e);
+            }
+        }
+
+        function toggleSoundFx() {
+            appState.settings.soundEnabled = !appState.settings.soundEnabled;
+            saveState();
+            const btn = document.getElementById('btn-sound-toggle');
+            if (appState.settings.soundEnabled) {
+                btn.innerHTML = `<i data-lucide="volume-2" class="w-4 h-4 text-chaska-400"></i>`;
+                showToast("Sonidos activados", "info");
+                playChime('click');
+            } else {
+                btn.innerHTML = `<i data-lucide="volume-x" class="w-4 h-4 text-slate-500"></i>`;
+                showToast("Sonidos silenciados", "info");
+            }
+            lucide.createIcons();
         }
 
         function switchTab(tabName) {
@@ -1035,13 +1420,13 @@
             if (target) target.classList.remove('hidden');
 
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-chaska-600', 'text-white', 'shadow-lg', 'shadow-chaska-600/20');
+                btn.classList.remove('bg-chaska-600', 'text-white', 'shadow-lg', 'shadow-chaska-600/30');
                 btn.classList.add('text-slate-400');
             });
 
             const activeBtn = document.getElementById(`nav-${tabName}`);
             if (activeBtn) {
-                activeBtn.classList.add('bg-chaska-600', 'text-white', 'shadow-lg', 'shadow-chaska-600/20');
+                activeBtn.classList.add('bg-chaska-600', 'text-white', 'shadow-lg', 'shadow-chaska-600/30');
                 activeBtn.classList.remove('text-slate-400');
             }
 
@@ -1057,6 +1442,7 @@
                 renderRecipesCards();
                 renderInventoryMovementsTable();
             }
+            if (tabName === 'reports') renderReportsView();
             if (tabName === 'settings') renderSettingsView();
 
             lucide.createIcons();
@@ -1088,7 +1474,7 @@
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-2');
                 setTimeout(() => toast.remove(), 300);
-            }, 3500);
+            }, 3200);
         }
 
         function renderTables(zoneFilter = 'all') {
@@ -1114,17 +1500,19 @@
                 let badgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
 
                 if (table.status === 'occupied') {
-                    borderStyle = 'border-amber-500/50 text-amber-400 bg-slate-900 shadow-lg shadow-amber-500/5';
+                    borderStyle = 'border-amber-500/60 text-amber-400 bg-slate-900 shadow-xl shadow-amber-500/5';
                     statusText = 'Ocupada';
                     badgeStyle = 'bg-amber-500/20 text-amber-400 border-amber-500/30';
                 } else if (table.status === 'bill') {
-                    borderStyle = 'border-blue-500/60 text-blue-400 bg-blue-950/20 animate-pulse';
+                    borderStyle = 'border-blue-500/70 text-blue-400 bg-blue-950/20 animate-pulse';
                     statusText = 'Pide Cuenta';
                     badgeStyle = 'bg-blue-500/20 text-blue-400 border-blue-500/30';
                 }
 
                 let orderAmount = 0;
                 let orderItemsCount = 0;
+                let minutesOccupied = 0;
+
                 if (table.orderId) {
                     const order = appState.orders.find(o => o.id === table.orderId);
                     if (order) {
@@ -1133,20 +1521,32 @@
                     }
                 }
 
+                if (table.occupiedSince) {
+                    const diffMs = Date.now() - new Date(table.occupiedSince).getTime();
+                    minutesOccupied = Math.floor(diffMs / 60000);
+                }
+
                 const card = document.createElement('div');
-                card.className = `border-2 ${borderStyle} p-4 rounded-2xl flex flex-col justify-between cursor-pointer hover:scale-[1.02] transition duration-200 select-none min-h-[145px]`;
+                card.className = `border-2 ${borderStyle} p-4 rounded-2xl flex flex-col justify-between cursor-pointer hover:scale-[1.02] transition duration-200 select-none min-h-[155px]`;
                 card.onclick = () => selectTable(table.id);
 
                 card.innerHTML = `
                     <div class="flex items-start justify-between">
                         <div>
-                            <span class="font-black text-white text-base">${table.number}</span>
-                            <span class="block text-[11px] text-slate-400">${table.zone} &bull; ${table.capacity} pers.</span>
+                            <span class="font-black text-white text-base md:text-lg">${table.number}</span>
+                            <span class="block text-[11px] text-slate-400">${table.zone} &bull; ${table.capacity} personas</span>
                         </div>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeStyle}">${statusText}</span>
+                        <div class="text-right">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeStyle}">${statusText}</span>
+                            ${table.status !== 'free' ? `
+                                <span class="block text-[10px] text-slate-400 font-mono mt-1">
+                                    <i data-lucide="clock" class="w-3 h-3 inline"></i> ${minutesOccupied} min
+                                </span>
+                            ` : ''}
+                        </div>
                     </div>
 
-                    <div class="mt-4 pt-2 border-t border-slate-800/80 flex justify-between items-end">
+                    <div class="mt-4 pt-2.5 border-t border-slate-800/80 flex justify-between items-end">
                         ${table.status === 'free' ? `
                             <span class="text-xs text-slate-500 flex items-center gap-1 font-medium">
                                 <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Abrir comanda
@@ -1208,6 +1608,7 @@
             if (table.status === 'free') {
                 table.status = 'occupied';
                 table.diners = table.capacity;
+                table.occupiedSince = new Date().toISOString();
                 const newOrder = {
                     id: Date.now(),
                     tableId: table.id,
@@ -1298,7 +1699,7 @@
                 card.className = `bg-slate-900 border ${
                     isOutOfStock 
                         ? 'border-red-900/60 opacity-60 cursor-not-allowed' 
-                        : 'border-slate-800 hover:border-chaska-500/50 hover:bg-slate-800/90 cursor-pointer'
+                        : 'border-slate-800 hover:border-chaska-500/50 hover:bg-slate-800/90 cursor-pointer active:scale-95'
                 } rounded-2xl p-3 flex flex-col justify-between transition select-none group relative`;
 
                 if (!isOutOfStock) {
@@ -1369,7 +1770,7 @@
         function addItemToOrder(prodId) {
             const availability = checkProductAvailability(prodId);
             if (!availability.available) {
-                showToast(`Plato bloqueado: Sin stock suficiente de ${availability.missing.join(', ')}`, "warning");
+                showToast(`Plato bloqueado: Falta ${availability.missing.join(', ')}`, "warning");
                 return;
             }
 
@@ -1378,6 +1779,7 @@
 
             if (table.status === 'free') {
                 table.status = 'occupied';
+                table.occupiedSince = new Date().toISOString();
                 const newOrder = {
                     id: Date.now(),
                     tableId: table.id,
@@ -1407,6 +1809,7 @@
                 });
             }
 
+            playChime('click');
             saveState();
             renderPosOrderTicket();
             renderTables(appState.activeZoneFilter || 'all');
@@ -1460,7 +1863,7 @@
                         <span class="font-black text-slate-200 text-xs">$${(item.price * item.qty).toLocaleString()}</span>
                     </div>
 
-                    <input type="text" value="${item.notes || ''}" placeholder="Nota cocina (ej: bien cocido, sin sal)..." 
+                    <input type="text" value="${item.notes || ''}" placeholder="Nota cocina (ej: bife a punto, sin cebolla)..." 
                         onchange="updateItemNote(${idx}, this.value)"
                         class="w-full bg-slate-900 border border-slate-800 rounded-lg text-[10px] px-2 py-1 text-slate-300 focus:outline-none focus:border-chaska-500">
 
@@ -1526,11 +1929,12 @@
                 order.items = [];
                 table.status = 'free';
                 table.orderId = null;
+                table.occupiedSince = null;
                 appState.orders = appState.orders.filter(o => o.id !== order.id);
                 saveState();
                 renderPosOrderTicket();
                 renderTables(appState.activeZoneFilter || 'all');
-                showToast(`Comanda de ${table.number} cancelada y mesa liberada`, "warning");
+                showToast(`Comanda de ${table.number} anulada`, "warning");
             }
         }
 
@@ -1609,7 +2013,7 @@
             const targetId = parseInt(document.getElementById('move-target-table').value);
 
             if (!sourceId || !targetId) {
-                showToast("Debes seleccionar una mesa de origen y una mesa libre de destino", "warning");
+                showToast("Selecciona mesa de origen y mesa libre de destino", "warning");
                 return;
             }
 
@@ -1623,10 +2027,12 @@
             targetTable.orderId = order.id;
             targetTable.status = sourceTable.status;
             targetTable.diners = sourceTable.diners;
+            targetTable.occupiedSince = sourceTable.occupiedSince;
 
             sourceTable.status = 'free';
             sourceTable.orderId = null;
             sourceTable.diners = 0;
+            sourceTable.occupiedSince = null;
 
             appState.selectedTableId = targetTable.id;
 
@@ -1634,7 +2040,7 @@
             closeMoveTableModal();
             renderTables(appState.activeZoneFilter || 'all');
             renderPosOrderTicket();
-            showToast(`Comanda transferida de ${sourceTable.number} a ${targetTable.number} con éxito`, "success");
+            showToast(`Comanda transferida de ${sourceTable.number} a ${targetTable.number}`, "success");
         }
 
         function openMergeTableModal() {
@@ -1680,7 +2086,7 @@
             const targetId = parseInt(document.getElementById('merge-target-table').value);
 
             if (!sourceId || !targetId || sourceId === targetId) {
-                showToast("Selecciona dos mesas ocupadas distintas para fusionar", "warning");
+                showToast("Selecciona dos mesas ocupadas distintas", "warning");
                 return;
             }
 
@@ -1708,6 +2114,7 @@
             sourceTable.status = 'free';
             sourceTable.orderId = null;
             sourceTable.diners = 0;
+            sourceTable.occupiedSince = null;
 
             appState.selectedTableId = targetTable.id;
 
@@ -1743,8 +2150,8 @@
 
             area.innerHTML = `
                 <div class="text-center pb-2 border-b border-dashed border-slate-400">
-                    <h2 class="text-base font-black uppercase tracking-wider">${appState.settings.restaurantName || 'CHASKA'}</h2>
-                    <p class="text-[10px] text-slate-600">Servicio de Salón & Parrilla</p>
+                    <h2 class="text-base font-black uppercase tracking-wider">${appState.settings.restaurantName || 'SOFTWARE CHASKA'}</h2>
+                    <p class="text-[10px] text-slate-600">Servicio de Salón & Parrilla (8 Mesas)</p>
                     <p class="text-[10px] text-slate-500 font-bold mt-1">*** PRE-CUENTA DE CONSUMO ***</p>
                 </div>
 
@@ -1778,9 +2185,9 @@
                 </div>
 
                 <div class="text-center pt-3 border-t border-dashed border-slate-400 text-[10px] text-slate-600 space-y-1">
-                    <p class="font-bold">¡Muchas gracias por su visita!</p>
-                    <p>Medios de Pago: Efectivo / Tarjetas / Transferencia QR</p>
-                    <p class="text-[9px] text-slate-400 mt-1">Documento no válido como factura fiscal</p>
+                    <p class="font-bold">¡Muchas gracias por su preferencia!</p>
+                    <p>Medios de Pago: Efectivo / Tarjetas / Transferencia</p>
+                    <p class="text-[9px] text-slate-400 mt-1">Documento no fiscal</p>
                 </div>
             `;
 
@@ -1794,7 +2201,7 @@
         function openCheckoutModal() {
             const order = getCurrentOrder();
             if (!order || order.items.length === 0) {
-                showToast("La mesa no tiene platos registrados para cobrar", "warning");
+                showToast("La mesa no tiene consumos para cobrar", "warning");
                 return;
             }
 
@@ -1843,7 +2250,7 @@
                 const tipRate = (appState.settings.tipPercentage || 10) / 100;
                 const tip = tipChecked ? Math.round(subtotal * tipRate) : 0;
                 const totalDividido = (subtotal + tip) / split;
-                document.getElementById('checkout-total-amount').innerText = `$${Math.round(totalDividido).toLocaleString()} (x${split})`;
+                document.getElementById('checkout-total-amount').innerText = `$${Math.round(totalDividido).toLocaleString()} por persona (${split} pagos)`;
             }
         }
 
@@ -1884,6 +2291,7 @@
                 tableNumber: table.number,
                 closedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 itemsSummary: order.items.map(i => `${i.qty}x ${i.name}`).join(', '),
+                items: JSON.parse(JSON.stringify(order.items)),
                 subtotal: subtotal,
                 tip: tip,
                 total: total,
@@ -1894,9 +2302,11 @@
             table.status = 'free';
             table.diners = 0;
             table.orderId = null;
+            table.occupiedSince = null;
 
             appState.orders = appState.orders.filter(o => o.id !== order.id);
 
+            playChime('cash');
             saveState();
             closeCheckoutModal();
             renderTables(appState.activeZoneFilter || 'all');
@@ -1905,7 +2315,7 @@
             updateHeaderMetrics();
             switchTab('floormap');
 
-            showToast(`¡Venta cerrada! $${total.toLocaleString()} (${appState.selectedPaymentMethod}). Insumos descontados y ${table.number} liberada.`, "success");
+            showToast(`¡Venta cerrada! $${total.toLocaleString()} (${appState.selectedPaymentMethod}) & ${table.number} liberada`, "success");
         }
 
         function openPurchaseModal() {
@@ -1934,9 +2344,7 @@
             const insumo = appState.insumos.find(i => i.id === insumoId);
             if (!insumo || isNaN(qty) || qty <= 0) return;
 
-            const stockAnterior = insumo.stock;
-            const nuevoStock = parseFloat((stockAnterior + qty).toFixed(3));
-            insumo.stock = nuevoStock;
+            insumo.stock = parseFloat((insumo.stock + qty).toFixed(3));
             insumo.costo = cost;
 
             if (!appState.inventoryMovements) appState.inventoryMovements = [];
@@ -2009,7 +2417,7 @@
             renderInsumosTable();
             renderPosCatalog();
             renderInventoryMovementsTable();
-            showToast(`Baja por merma: -${qty} ${insumo.unidad} de ${insumo.nombre}`, "info");
+            showToast(`Baja por merma registrada: -${qty} ${insumo.unidad}`, "info");
         }
 
         function openCashMovementModal(type = 'OUT') {
@@ -2051,7 +2459,7 @@
             closeCashMovementModal();
             renderCashierView();
             updateHeaderMetrics();
-            showToast(`Egreso registrado: $${amount.toLocaleString()} (${category})`, "info");
+            showToast(`Egreso asentado: $${amount.toLocaleString()} (${category})`, "info");
         }
 
         function openBlindCloseModal() {
@@ -2096,13 +2504,13 @@
             resultContainer.innerHTML = `
                 <div class="border-b border-slate-800 pb-2">
                     <h4 class="font-extrabold text-white text-sm">Auditoría de Cuadratura a Ciegas</h4>
-                    <p class="text-[11px] text-slate-400">Comparativa directa contra registros contables.</p>
+                    <p class="text-[11px] text-slate-400">Comparación entre conteo físico y sistema.</p>
                 </div>
 
                 <div class="space-y-2 text-xs">
                     <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 space-y-1">
                         <div class="flex justify-between text-slate-400"><span>Efectivo Declarado:</span><strong class="text-white font-mono">$${countedCash.toLocaleString()}</strong></div>
-                        <div class="flex justify-between text-slate-400"><span>Efectivo Teórico en Cajón:</span><span class="text-slate-200 font-mono">$${expectedCashInDrawer.toLocaleString()}</span></div>
+                        <div class="flex justify-between text-slate-400"><span>Efectivo Teórico en Gaveta:</span><span class="text-slate-200 font-mono">$${expectedCashInDrawer.toLocaleString()}</span></div>
                         <div class="flex justify-between pt-1 border-t border-slate-800"><span>Diferencia Efectivo:</span>${statusBadgeCash}</div>
                     </div>
 
@@ -2245,7 +2653,7 @@
                         `;
                     }).join('');
                 } else {
-                    ingredientesHtml = '<p class="text-[11px] text-slate-500 italic py-2">Sin receta cargada aún.</p>';
+                    ingredientesHtml = '<p class="text-[11px] text-slate-500 italic py-2">Sin ingredientes parametrizados.</p>';
                 }
 
                 const margen = p.price > 0 && costoTeorico > 0 
@@ -2270,7 +2678,7 @@
                         </div>
 
                         <div class="space-y-0.5 my-3 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800/80">
-                            <span class="text-[9px] uppercase font-bold text-slate-400 block mb-1">Materias Primas Requeridas:</span>
+                            <span class="text-[9px] uppercase font-bold text-slate-400 block mb-1">Escandallo / Insumos:</span>
                             ${ingredientesHtml}
                         </div>
                     </div>
@@ -2325,7 +2733,7 @@
 
             const total = appState.history.reduce((acc, h) => acc + h.total, 0);
             const count = appState.history.length;
-            const initialCash = appState.shift.initialCash || 25000;
+            const initialCash = appState.shift.initialCash || 35000;
             const expenses = (appState.shift.cashMovements || []).filter(m => m.type === 'OUT').reduce((acc, m) => acc + m.amount, 0);
             const cashSales = appState.history.filter(h => h.method === 'Efectivo').reduce((acc, h) => acc + h.total, 0);
             const cardSales = appState.history.filter(h => h.method === 'Tarjeta').reduce((acc, h) => acc + h.total, 0);
@@ -2345,7 +2753,7 @@
 
             tbodySales.innerHTML = '';
             if (appState.history.length === 0) {
-                tbodySales.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No hay ventas cerradas en el turno activo.</td></tr>`;
+                tbodySales.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No hay ventas cobradas en el turno activo.</td></tr>`;
             } else {
                 appState.history.forEach(h => {
                     const tr = document.createElement('tr');
@@ -2390,7 +2798,7 @@
 
         function updateHeaderMetrics() {
             const totalCollected = appState.history.reduce((acc, h) => acc + h.total, 0);
-            const initialCash = appState.shift.initialCash || 25000;
+            const initialCash = appState.shift.initialCash || 35000;
             const expenses = (appState.shift.cashMovements || []).filter(m => m.type === 'OUT').reduce((acc, m) => acc + m.amount, 0);
             const cashSales = appState.history.filter(h => h.method === 'Efectivo').reduce((acc, h) => acc + h.total, 0);
             const theoreticalCash = initialCash + cashSales - expenses;
@@ -2402,6 +2810,100 @@
             if (elTodaySales) elTodaySales.innerText = `$${totalCollected.toLocaleString()}`;
             if (elCash) elCash.innerText = `$${theoreticalCash.toLocaleString()}`;
             if (elInitSide) elInitSide.innerText = `$${initialCash.toLocaleString()}`;
+        }
+
+        function renderReportsView() {
+            const totalSales = appState.history.reduce((acc, h) => acc + h.total, 0);
+            const totalTips = appState.history.reduce((acc, h) => acc + h.tip, 0);
+            const totalTickets = appState.history.length;
+            const avgTicket = totalTickets > 0 ? Math.round(totalSales / totalTickets) : 0;
+
+            document.getElementById('report-avg-ticket').innerText = `$${avgTicket.toLocaleString()}`;
+            document.getElementById('report-rotation').innerText = `${totalTickets} rotaciones`;
+            document.getElementById('report-total-tips').innerText = `$${totalTips.toLocaleString()}`;
+            document.getElementById('report-gross-profit').innerText = `$${Math.round(totalSales * 0.65).toLocaleString()}`;
+
+            // Ranking de platos vendidos
+            const dishCounts = {};
+            appState.history.forEach(h => {
+                if (h.items && Array.isArray(h.items)) {
+                    h.items.forEach(i => {
+                        dishCounts[i.name] = (dishCounts[i.name] || 0) + i.qty;
+                    });
+                }
+            });
+
+            const topContainer = document.getElementById('report-top-dishes');
+            topContainer.innerHTML = '';
+            const sortedDishes = Object.entries(dishCounts).sort((a, b) => b[1] - a[1]);
+
+            if (sortedDishes.length === 0) {
+                topContainer.innerHTML = `<p class="text-slate-500 py-3">No hay suficientes ventas registradas para el ranking.</p>`;
+            } else {
+                sortedDishes.slice(0, 5).forEach(([name, count], index) => {
+                    const el = document.createElement('div');
+                    el.className = 'flex justify-between items-center bg-slate-950 p-2.5 rounded-xl border border-slate-800';
+                    el.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-chaska-500/20 text-chaska-400 font-black text-[10px] flex items-center justify-center">${index + 1}</span>
+                            <span class="font-bold text-white">${name}</span>
+                        </div>
+                        <span class="font-black text-chaska-400 font-mono">${count} pedidos</span>
+                    `;
+                    topContainer.appendChild(el);
+                });
+            }
+
+            // Desglose de pagos
+            const payContainer = document.getElementById('report-payment-breakdown');
+            payContainer.innerHTML = '';
+            const cashTotal = appState.history.filter(h => h.method === 'Efectivo').reduce((acc, h) => acc + h.total, 0);
+            const cardTotal = appState.history.filter(h => h.method === 'Tarjeta').reduce((acc, h) => acc + h.total, 0);
+            const qrTotal = appState.history.filter(h => h.method.includes('QR')).reduce((acc, h) => acc + h.total, 0);
+
+            const methods = [
+                { name: 'Efectivo', total: cashTotal, color: 'text-emerald-400' },
+                { name: 'Tarjeta Débito / Crédito', total: cardTotal, color: 'text-blue-400' },
+                { name: 'QR / Transferencias', total: qrTotal, color: 'text-purple-400' }
+            ];
+
+            methods.forEach(m => {
+                const percent = totalSales > 0 ? Math.round((m.total / totalSales) * 100) : 0;
+                const row = document.createElement('div');
+                row.className = 'bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5';
+                row.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-300">${m.name}</span>
+                        <span class="font-mono font-bold ${m.color}">$${m.total.toLocaleString()} (${percent}%)</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-chaska-500 h-full rounded-full" style="width: ${percent}%"></div>
+                    </div>
+                `;
+                payContainer.appendChild(row);
+            });
+        }
+
+        function exportReportsToCsv() {
+            if (appState.history.length === 0) {
+                showToast("No hay registros de ventas para exportar", "warning");
+                return;
+            }
+
+            let csv = "ID,Mesa,Hora,Detalle,Metodo,Propina,Total,AtendidoPor\n";
+            appState.history.forEach(h => {
+                csv += `"${h.id}","${h.tableNumber}","${h.closedAt}","${h.itemsSummary.replace(/"/g, '""')}","${h.method}",${h.tip},${h.total},"${h.closedBy}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `ventas_chaska_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Reporte CSV descargado con éxito", "success");
         }
 
         function switchSettingsTab(tabKey) {
@@ -2419,6 +2921,8 @@
                 activeBtn.classList.add('bg-chaska-600', 'text-white');
                 activeBtn.classList.remove('text-slate-400');
             }
+
+            if (tabKey === 'branches') renderSettingsBranchesList();
             lucide.createIcons();
         }
 
@@ -2426,8 +2930,9 @@
             renderSettingsZoneSelect();
             renderSettingsTablesTable();
             renderSettingsUsersTable();
+            renderSettingsBranchesList();
 
-            document.getElementById('setting-general-name').value = appState.settings.restaurantName || 'Chaska';
+            document.getElementById('setting-general-name').value = appState.settings.restaurantName || appState.name || 'Software Chaska';
             document.getElementById('setting-general-tip').value = appState.settings.tipPercentage || 10;
             document.getElementById('setting-general-zones').value = (appState.settings.zones || []).join(', ');
         }
@@ -2467,7 +2972,7 @@
                         <i data-lucide="table" class="w-4 h-4 text-chaska-400"></i> ${t.number}
                     </td>
                     <td class="p-3 text-slate-300 font-semibold">${t.zone}</td>
-                    <td class="p-3 text-center font-mono text-slate-200">${t.capacity} comensales</td>
+                    <td class="p-3 text-center font-mono text-slate-200">${t.capacity} personas</td>
                     <td class="p-3 text-center">${statusBadge}</td>
                     <td class="p-3 text-right">
                         <div class="flex items-center justify-end gap-1.5">
@@ -2501,7 +3006,7 @@
                     t.number = number;
                     t.zone = zone;
                     t.capacity = capacity;
-                    showToast(`Mesa "${number}" actualizada`, "success");
+                    showToast(`Mesa "${number}" modificada`, "success");
                 }
             } else {
                 const newId = appState.tables.length > 0 ? Math.max(...appState.tables.map(t => t.id)) + 1 : 1;
@@ -2512,9 +3017,10 @@
                     capacity: capacity,
                     status: 'free',
                     diners: 0,
-                    orderId: null
+                    orderId: null,
+                    occupiedSince: null
                 });
-                showToast(`Mesa "${number}" agregada a ${zone}`, "success");
+                showToast(`Mesa "${number}" agregada al local`, "success");
             }
 
             saveState();
@@ -2542,7 +3048,7 @@
             document.getElementById('setting-table-id').value = '';
             document.getElementById('setting-table-number').value = '';
             document.getElementById('setting-table-capacity').value = 4;
-            document.getElementById('form-table-title').innerText = "Agregar Nueva Mesa";
+            document.getElementById('form-table-title').innerText = "Agregar / Editar Mesa";
             document.getElementById('btn-save-table').innerText = "Guardar Mesa";
             document.getElementById('btn-cancel-table-edit').classList.add('hidden');
         }
@@ -2552,7 +3058,7 @@
             if (!table) return;
 
             if (table.status !== 'free') {
-                showToast(`No puedes eliminar la ${table.number} porque tiene una comanda activa. Cierra o cancela el pedido primero.`, "warning");
+                showToast(`No puedes eliminar la ${table.number} con comanda activa`, "warning");
                 return;
             }
 
@@ -2565,7 +3071,7 @@
             renderSettingsTablesTable();
             renderTables(appState.activeZoneFilter || 'all');
             updatePosTableSelector();
-            showToast(`Mesa eliminada del sistema`, "info");
+            showToast(`Mesa eliminada`, "info");
         }
 
         function renderSettingsUsersTable() {
@@ -2595,11 +3101,11 @@
                     <td class="p-3 text-center">${statusBadge}</td>
                     <td class="p-3 text-right">
                         <div class="flex items-center justify-end gap-1.5">
-                            <button onclick="editUserConfig(${u.id})" title="Editar Usuario" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition">
+                            <button onclick="editUserConfig(${u.id})" title="Editar" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                             </button>
                             ${appState.users.length > 1 ? `
-                                <button onclick="deleteUserConfig(${u.id})" title="Eliminar Usuario" class="text-slate-400 hover:text-red-400 p-1 rounded hover:bg-slate-800 transition">
+                                <button onclick="deleteUserConfig(${u.id})" title="Eliminar" class="text-slate-400 hover:text-red-400 p-1 rounded hover:bg-slate-800 transition">
                                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 </button>
                             ` : ''}
@@ -2638,7 +3144,7 @@
                     role: role,
                     pin: pin || '0000'
                 });
-                showToast(`Usuario "${name}" creado exitosamente`, "success");
+                showToast(`Operador "${name}" creado`, "success");
             }
 
             saveState();
@@ -2664,14 +3170,14 @@
             document.getElementById('setting-user-id').value = '';
             document.getElementById('setting-user-name').value = '';
             document.getElementById('setting-user-pin').value = '';
-            document.getElementById('form-user-title').innerText = "Crear Nuevo Usuario";
-            document.getElementById('btn-save-user').innerText = "Guardar Usuario";
+            document.getElementById('form-user-title').innerText = "Crear Nuevo Operador";
+            document.getElementById('btn-save-user').innerText = "Guardar";
             document.getElementById('btn-cancel-user-edit').classList.add('hidden');
         }
 
         function deleteUserConfig(id) {
             if (appState.users.length <= 1) {
-                showToast("Debe haber al menos un usuario registrado en el sistema", "warning");
+                showToast("Debe haber al menos un usuario en el sistema", "warning");
                 return;
             }
 
@@ -2690,7 +3196,7 @@
             saveState();
             renderSettingsUsersTable();
             const u = appState.users.find(x => x.id === id);
-            showToast(`Turno cambiado a: ${u ? u.name : 'Usuario'}`, "success");
+            showToast(`Turno asignado a: ${u ? u.name : 'Usuario'}`, "success");
         }
 
         function updateHeaderUserDisplay() {
@@ -2703,7 +3209,7 @@
 
         function handleSaveGeneralSettings(e) {
             e.preventDefault();
-            const name = document.getElementById('setting-general-name').value.trim() || 'Chaska';
+            const name = document.getElementById('setting-general-name').value.trim() || 'Software Chaska';
             const tip = parseInt(document.getElementById('setting-general-tip').value) || 10;
             const rawZones = document.getElementById('setting-general-zones').value;
 
@@ -2724,87 +3230,47 @@
             renderFloorMapZoneFilters();
             updatePosTotals();
 
-            showToast("Parámetros del restaurante guardados con éxito", "success");
+            showToast("Configuración general guardada", "success");
         }
 
-        function openSheetsModal() {
-            document.getElementById('modal-sheets').classList.remove('hidden');
+        function exportFullDatabaseJson() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", `chaska_respaldo_completo_${new Date().toISOString().slice(0,10)}.json`);
+            dl.click();
+            showToast("Copia de seguridad descargada", "success");
         }
 
-        function closeSheetsModal() {
-            document.getElementById('modal-sheets').classList.add('hidden');
+        function openResetConfirmModal() {
+            document.getElementById('modal-confirm-reset').classList.remove('hidden');
         }
 
-        function convertGoogleSheetUrlToCsv(url) {
-            let clean = url.trim();
-            const match = clean.match(/\/d\/([a-zA-Z0-9-_]+)/);
-            if (match && match[1]) {
-                const sheetId = match[1];
-                const gidMatch = clean.match(/[#&?]gid=([0-9]+)/);
-                const gidParam = gidMatch ? `&gid=${gidMatch[1]}` : '&gid=0';
-                return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv${gidParam}`;
-            }
-            return clean;
+        function closeResetConfirmModal() {
+            document.getElementById('modal-confirm-reset').classList.add('hidden');
         }
 
-        function downloadDirectCsvBackup() {
-            const urlInput = document.getElementById('sheets-url-input').value.trim();
-            const csvUrl = convertGoogleSheetUrlToCsv(urlInput);
-            window.open(csvUrl, '_blank');
-            showToast("Descargando archivo CSV desde Google Drive...", "info");
-        }
-
-        async function syncGoogleSheetsFromUrl() {
-            const urlInput = document.getElementById('sheets-url-input').value.trim();
-            if (!urlInput) {
-                showToast("Ingresa el enlace del Google Sheet", "warning");
-                return;
-            }
-
-            const btn = document.getElementById('btn-sync-submit');
-            const original = btn.innerHTML;
-            btn.innerHTML = `<span class="animate-spin inline-block mr-1">&#9696;</span> Conectando a Google...`;
-            btn.disabled = true;
-
-            const csvUrl = convertGoogleSheetUrlToCsv(urlInput);
-
-            try {
-                const response = await fetch(csvUrl);
-                if (!response.ok) {
-                    throw new Error("Respuesta bloqueada. Usa el botón 'Descargar CSV' para descargar la planilla.");
-                }
-                const text = await response.text();
-
-                if (text.includes('<!DOCTYPE html') || text.includes('accounts.google.com')) {
-                    throw new Error("La hoja requiere permisos. Abre la hoja en Google Drive y pon Compartir > Cualquier persona con el enlace.");
-                }
-
-                showToast("¡Sincronización completa con Google Sheets!", "success");
-                appState.sheetsUrl = urlInput;
-                saveState();
-                closeSheetsModal();
-                renderInsumosTable();
-                renderRecipesCards();
-                renderPosCatalog();
-            } catch (err) {
-                showToast(err.message || "Error de conexión. Prueba con 'Descargar CSV'", "warning");
-            } finally {
-                btn.innerHTML = original;
-                btn.disabled = false;
-            }
+        function confirmResetData() {
+            multiState = JSON.parse(JSON.stringify(DEFAULT_MULTI_STATE));
+            appState = multiState.branches[multiState.activeBranchId];
+            saveState();
+            closeResetConfirmModal();
+            showToast("Datos restablecidos para Chaska y Che Dario", "info");
+            initApp();
         }
 
         function initApp() {
             lucide.createIcons();
 
             if (appState.settings) {
-                const bName = appState.settings.restaurantName || 'Chaska';
+                const bName = appState.settings.restaurantName || appState.name || 'Chaska';
                 const elBrand = document.getElementById('header-brand-name');
                 const elHeading = document.getElementById('floormap-heading');
                 if (elBrand) elBrand.innerText = bName;
                 if (elHeading) elHeading.innerText = `Salón ${bName}`;
             }
 
+            renderBranchSelector();
             updateHeaderUserDisplay();
             updateHeaderMetrics();
             renderTables(appState.activeZoneFilter || 'all');
@@ -2816,6 +3282,13 @@
             renderInventoryMovementsTable();
             renderCashierView();
             renderSettingsView();
+
+            // Intervalo para actualizar minutero de mesas ocupadas
+            setInterval(() => {
+                if (!document.getElementById('view-floormap').classList.contains('hidden')) {
+                    renderTables(appState.activeZoneFilter || 'all');
+                }
+            }, 30000);
         }
 
         window.onload = function() {
