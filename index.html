@@ -94,7 +94,7 @@
             <!-- INDICADOR CLOUD EN VIVO -->
             <div id="cloud-status-badge" class="flex items-center gap-1.5 px-2.5 py-1 bg-slate-950/80 border border-slate-800 rounded-xl text-xs font-semibold">
                 <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                <span id="cloud-status-text" class="text-[11px] text-slate-300 hidden sm:inline">Conectando...</span>
+                <span id="cloud-status-text" class="text-[11px] text-slate-300 hidden sm:inline">Conectando a Google...</span>
             </div>
 
             <div class="hidden lg:flex items-center space-x-4 bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-1.5 text-xs">
@@ -175,8 +175,8 @@
                 <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] space-y-1.5">
                     <div class="flex justify-between items-center text-slate-400">
                         <span>Terminal Chaska</span>
-                        <span class="text-emerald-400 font-semibold flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Online
+                        <span id="sidebar-online-status" class="text-amber-400 font-semibold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Conectando
                         </span>
                     </div>
                     <div class="text-slate-400 flex justify-between">
@@ -1200,7 +1200,6 @@
             }
         };
 
-        // Cache local ultrarrápido para que cargue sin parpadeos mientras conecta
         let multiState = loadLocalCachedState() || JSON.parse(JSON.stringify(DEFAULT_MULTI_STATE));
         let appState = multiState.branches[multiState.activeBranchId] || multiState.branches['chaska'];
         let auth = null;
@@ -1223,6 +1222,29 @@
             } catch(e){}
         }
 
+        function setCloudStatusUI(status, label) {
+            const statusBadge = document.getElementById('cloud-status-badge');
+            const statusText = document.getElementById('cloud-status-text');
+            const statusDot = document.getElementById('cloud-status-dot');
+            const sideStatus = document.getElementById('sidebar-online-status');
+
+            if (status === 'connected') {
+                if (statusBadge) statusBadge.className = "flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/80 border border-emerald-500/50 rounded-xl text-xs font-semibold shadow-sm";
+                if (statusText) statusText.innerText = label || "Google Cloud En Vivo";
+                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+                if (sideStatus) sideStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> En Vivo`;
+            } else if (status === 'error') {
+                if (statusBadge) statusBadge.className = "flex items-center gap-1.5 px-2.5 py-1 bg-red-950/80 border border-red-500/50 rounded-xl text-xs font-semibold shadow-sm cursor-pointer";
+                if (statusText) statusText.innerText = label || "Error en Firebase (Ver Reglas)";
+                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-red-500";
+                if (sideStatus) sideStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Error Permisos`;
+            } else {
+                if (statusBadge) statusBadge.className = "flex items-center gap-1.5 px-2.5 py-1 bg-slate-950/80 border border-slate-800 rounded-xl text-xs font-semibold";
+                if (statusText) statusText.innerText = label || "Modo Local";
+                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-amber-400";
+            }
+        }
+
         async function initGoogleCloudRealtime() {
             let firebaseConfig = DIRECT_FIREBASE_CONFIG;
 
@@ -1234,29 +1256,18 @@
             }
 
             const uidDisplay = document.getElementById('sidebar-cloud-uid');
-            const statusBadge = document.getElementById('cloud-status-badge');
-            const statusText = document.getElementById('cloud-status-text');
-            const statusDot = document.getElementById('cloud-status-dot');
-
-            // Cargar interfaz de inmediato con la memoria local
             initApp();
 
             if (!firebaseConfig) {
                 if (uidDisplay) uidDisplay.innerText = "Modo Local";
-                if (statusText) statusText.innerText = "Modo Local";
-                if (statusDot) {
-                    statusDot.className = "w-2 h-2 rounded-full bg-amber-400";
-                    statusDot.classList.remove('animate-pulse');
-                }
+                setCloudStatusUI('local', 'Modo Local');
                 return;
             }
 
             try {
-                // Inicializar Firebase App
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
 
-                // Inicializar Firestore con persistencia IndexedDB para carga inmediata offline
                 try {
                     db = initializeFirestore(app, {
                         localCache: persistentLocalCache({
@@ -1264,32 +1275,25 @@
                         })
                     });
                 } catch (cacheErr) {
-                    // Si ya estaba instanciada, continuar normalmente
-                    console.log("Persistencia local ya activa o fallback.");
+                    console.log("Persistencia local fallback.");
                 }
 
-                // Autenticar sin bloquear la interfaz
+                // Intentar autenticación anónima
                 signInAnonymously(auth).then(userCred => {
                     currentUser = userCred.user;
                     if (uidDisplay) uidDisplay.innerText = currentUser.uid.slice(0, 10) + '...';
                 }).catch(err => {
-                    console.warn("Auth silenciosa:", err);
+                    console.warn("Falta activar Anónimo en Firebase Authentication:", err);
+                    if (err.code === 'auth/operation-not-allowed') {
+                        showToast("Falta habilitar acceso 'Anónimo' en Firebase Authentication", "error");
+                        setCloudStatusUI('error', 'Falta Auth Anónimo');
+                    }
                 });
-
-                // Marcar estado como conectado en la barra superior
-                if (statusBadge) {
-                    statusBadge.className = "flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/80 border border-emerald-500/50 rounded-xl text-xs font-semibold shadow-sm";
-                }
-                if (statusText) statusText.innerText = "Google Cloud En Vivo";
-                if (statusDot) {
-                    statusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-                }
 
                 listenToCloudBranches();
             } catch (err) {
-                console.error("Error al conectar con Google Cloud:", err);
-                if (statusText) statusText.innerText = "Google Cloud En Vivo";
-                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+                console.error("Error al inicializar Firebase:", err);
+                setCloudStatusUI('error', 'Error Config Firebase');
             }
         }
 
@@ -1323,16 +1327,20 @@
             if (!db) return;
 
             const branchesCol = collection(db, 'chaska_pos_branches');
-
             if (unsubscribeSnapshot) unsubscribeSnapshot();
 
             unsubscribeSnapshot = onSnapshot(branchesCol, { includeMetadataChanges: false }, async (snapshot) => {
+                // Si la conexión escucha exitosamente, marcamos verde confirmado
+                setCloudStatusUI('connected', 'Google Cloud En Vivo');
+
                 if (snapshot.empty) {
                     try {
                         await setDoc(doc(db, 'chaska_pos_branches', 'chaska'), DEFAULT_MULTI_STATE.branches.chaska);
                         await setDoc(doc(db, 'chaska_pos_branches', 'chedario'), DEFAULT_MULTI_STATE.branches.chedario);
+                        console.log("Datos de Chaska y Che Dario inicializados en Firestore.");
                     } catch (seedErr) {
-                        console.error("Error inicializando datos en Firestore:", seedErr);
+                        console.error("Error al sembrar datos iniciales:", seedErr);
+                        handleFirestoreError(seedErr);
                     }
                     return;
                 }
@@ -1353,14 +1361,22 @@
                 isSyncingFromCloud = false;
                 initApp();
             }, (error) => {
-                // Silenciar errores temporales de suspensión de pantalla de móviles
-                console.warn("Reanudando conexión de red en segundo plano...");
+                console.error("Error de Firestore en snapshot:", error);
+                handleFirestoreError(error);
             });
         }
 
-        // Reconectar automáticamente si el celular estuvo bloqueado o perdió señal
+        function handleFirestoreError(error) {
+            if (error.code === 'permission-denied') {
+                setCloudStatusUI('error', 'Permisos Denegados (Reglas)');
+                showToast("Firebase rechazó la conexión. Ve a Firestore > Reglas y pon 'allow read, write: if true;'", "error");
+            } else {
+                setCloudStatusUI('error', 'Error en Google Cloud');
+            }
+        }
+
         window.addEventListener('online', () => {
-            console.log("Señal reanudada. Sincronizando con Google Cloud...");
+            console.log("Red restablecida.");
             listenToCloudBranches();
         });
 
@@ -1377,7 +1393,8 @@
             if (db && !isSyncingFromCloud) {
                 const branchDocRef = doc(db, 'chaska_pos_branches', multiState.activeBranchId);
                 setDoc(branchDocRef, appState).catch(err => {
-                    console.warn("Pendiente de sincronizar a la nube:", err.message);
+                    console.error("Error al guardar en Google Cloud:", err);
+                    handleFirestoreError(err);
                 });
             }
         }
@@ -1657,7 +1674,7 @@
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-2');
                 setTimeout(() => toast.remove(), 300);
-            }, 3200);
+            }, 3500);
         }
 
         function renderTables(zoneFilter = 'all') {
