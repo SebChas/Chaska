@@ -297,8 +297,22 @@
             </div>
 
             <!-- VISTA 2: COMANDERO POS CON DESCUENTOS POR ÍTEM -->
-            <div id="view-pos" class="view-panel hidden h-full flex flex-col lg:flex-row overflow-hidden">
-                <div class="flex-1 flex flex-col h-full bg-slate-950 border-r border-slate-800 overflow-hidden">
+            <div id="view-pos" class="view-panel hidden h-full flex flex-col lg:flex-row overflow-hidden relative">
+                
+                <!-- CONMUTADOR TÁCTIL EXCLUSIVO PARA CELULARES -->
+                <div class="lg:hidden bg-slate-900/95 border-b border-slate-800 p-1.5 flex gap-1 shrink-0 z-20">
+                    <button onclick="setPosMobileView('catalog')" id="pos-m-btn-catalog" class="flex-1 py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-chaska-600 text-white shadow-sm">
+                        <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
+                        <span>🍽️ Carta (Agregar)</span>
+                    </button>
+                    <button onclick="setPosMobileView('ticket')" id="pos-m-btn-ticket" class="flex-1 py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-slate-950 text-slate-300 border border-slate-800">
+                        <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                        <span id="pos-m-ticket-tab-title">🧾 Comanda ($0)</span>
+                    </button>
+                </div>
+
+                <!-- COLUMNA 1: CATÁLOGO DE PLATOS Y BEBIDAS -->
+                <div id="pos-catalog-column" class="flex-1 flex flex-col h-full bg-slate-950 border-r border-slate-800 overflow-hidden">
                     <div class="p-2.5 sm:p-3.5 border-b border-slate-800 space-y-2 shrink-0">
                         <div class="flex items-center justify-between gap-2">
                             <div class="relative flex-1">
@@ -324,11 +338,26 @@
                         <div class="flex gap-1 overflow-x-auto pb-1" id="pos-category-pills"></div>
                     </div>
 
-                    <div id="pos-catalog-grid" class="flex-1 p-2.5 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 overflow-y-auto align-content-start pb-20 lg:pb-4"></div>
+                    <div id="pos-catalog-grid" class="flex-1 p-2.5 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 overflow-y-auto align-content-start pb-28 lg:pb-4"></div>
+
+                    <!-- BARRA FLOTANTE EN MÓVIL AL ESTAR EN LA CARTA -->
+                    <div id="pos-mobile-floating-bar" class="lg:hidden absolute bottom-14 left-3 right-3 bg-chaska-600 hover:bg-chaska-500 text-white p-3 rounded-2xl shadow-2xl flex items-center justify-between z-30 transition cursor-pointer active:scale-95 border border-chaska-400/40" onclick="setPosMobileView('ticket')">
+                        <div class="flex items-center gap-2">
+                            <span class="w-8 h-8 rounded-xl bg-black/25 flex items-center justify-center font-black text-xs" id="pos-m-float-count">0</span>
+                            <div class="text-left leading-tight">
+                                <span class="font-extrabold text-xs block" id="pos-m-float-table">Mesa 01</span>
+                                <span class="text-[10px] text-white/80">Toca para revisar y cobrar</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-black text-sm font-mono" id="pos-m-float-total">$0</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- TICKET DE COMANDA -->
-                <div class="w-full lg:w-96 bg-slate-900 flex flex-col h-full shrink-0 border-l border-slate-800">
+                <!-- COLUMNA 2: TICKET DE COMANDA -->
+                <div id="pos-ticket-column" class="hidden lg:flex w-full lg:w-96 bg-slate-900 flex-col h-full shrink-0 border-l border-slate-800">
                     <div class="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-900/90">
                         <div>
                             <div class="flex items-center gap-2">
@@ -338,6 +367,9 @@
                             <p class="text-[11px] text-slate-400" id="pos-ticket-subtitle">Consumo en salón</p>
                         </div>
                         <div class="flex items-center gap-1">
+                            <button onclick="setPosMobileView('catalog')" title="Agregar más platos" class="lg:hidden text-chaska-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition flex items-center gap-1 text-xs font-bold bg-slate-950 border border-slate-800 mr-1">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Carta
+                            </button>
                             <button onclick="toggleTableBillStatus()" title="Marcar Pide Cuenta" class="text-slate-400 hover:text-amber-400 p-1.5 rounded-lg hover:bg-slate-800 transition">
                                 <i data-lucide="hand" class="w-4 h-4"></i>
                             </button>
@@ -347,7 +379,7 @@
                         </div>
                     </div>
 
-                    <div id="pos-ticket-items" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
+                    <div id="pos-ticket-items" class="flex-1 overflow-y-auto p-3 space-y-2 pb-24 lg:pb-3"></div>
 
                     <!-- TOTALES DEL TICKET -->
                     <div class="p-3.5 bg-slate-950 border-t border-slate-800 space-y-2 shrink-0">
@@ -1444,6 +1476,119 @@
         let floormapViewMode = 'grid'; // 'grid' o 'minimap'
         let isMinimapEditMode = false;
         let activeDraggingTableId = null;
+        let currentPosMobileView = 'catalog'; // 'catalog' o 'ticket'
+
+        /* MANEJO DE SEDES Y RESTAURANTES (CHASKA / CHE DARIO) */
+        function toggleBranchDropdown() {
+            const dropdown = document.getElementById('branch-dropdown');
+            if (dropdown) dropdown.classList.toggle('hidden');
+        }
+
+        function switchBranch(branchId) {
+            if (!multiState.branches || !multiState.branches[branchId]) return;
+            multiState.activeBranchId = branchId;
+            appState = multiState.branches[branchId];
+            ensureBranchCollectionsExist(appState);
+            saveState();
+
+            const dropdown = document.getElementById('branch-dropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+
+            initApp();
+            showToast(`Cambiado a ${appState.name}`, "info");
+        }
+
+        /* IDENTIFICACIÓN DE USUARIOS & TECLADO PIN */
+        function openUserLoginModal() {
+            const modal = document.getElementById('modal-user-login');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            backToUserSelectStep();
+            renderLoginUsersList();
+        }
+
+        function closeUserLoginModal() {
+            const modal = document.getElementById('modal-user-login');
+            if (modal) modal.classList.add('hidden');
+            currentPinInput = "";
+            pinTargetUser = null;
+            updatePinDots();
+        }
+
+        function renderLoginUsersList() {
+            const container = document.getElementById('login-users-step');
+            if (!container) return;
+            container.innerHTML = '';
+
+            (appState.users || []).forEach(u => {
+                const btn = document.createElement('button');
+                btn.className = "w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-chaska-500/50 hover:bg-slate-800/60 transition text-left text-xs";
+                btn.onclick = () => selectUserToAuthenticate(u);
+                btn.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-lg bg-chaska-600/20 text-chaska-400 font-bold flex items-center justify-center text-xs">
+                            ${u.name.charAt(0)}
+                        </div>
+                        <div>
+                            <span class="font-bold text-white block">${u.name}</span>
+                            <span class="text-[10px] text-slate-400">${u.role}</span>
+                        </div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500"></i>
+                `;
+                container.appendChild(btn);
+            });
+            lucide.createIcons();
+        }
+
+        function selectUserToAuthenticate(user) {
+            pinTargetUser = user;
+            currentPinInput = "";
+            updatePinDots();
+            const stepUsers = document.getElementById('login-users-step');
+            const stepPin = document.getElementById('login-pin-step');
+            const stepLabel = document.getElementById('login-modal-step-label');
+            if (stepUsers) stepUsers.classList.add('hidden');
+            if (stepPin) stepPin.classList.remove('hidden');
+            if (stepLabel) stepLabel.innerText = `Ingresa el PIN de ${user.name}`;
+        }
+
+        function backToUserSelectStep() {
+            pinTargetUser = null;
+            currentPinInput = "";
+            updatePinDots();
+            const stepUsers = document.getElementById('login-users-step');
+            const stepPin = document.getElementById('login-pin-step');
+            const stepLabel = document.getElementById('login-modal-step-label');
+            if (stepUsers) stepUsers.classList.remove('hidden');
+            if (stepPin) stepPin.classList.add('hidden');
+            if (stepLabel) stepLabel.innerText = "Selecciona tu usuario";
+        }
+
+        function pressPinKey(num) {
+            if (currentPinInput.length < 4) {
+                currentPinInput += num;
+                updatePinDots();
+                if (currentPinInput.length === 4) {
+                    setTimeout(verifyPinAndLogin, 150);
+                }
+            }
+        }
+
+        /* CONMUTADOR DE SUB-PESTAÑAS DE CONFIGURACIÓN */
+        function switchSettingsTab(subTabKey) {
+            document.querySelectorAll('.settings-subpanel').forEach(p => p.classList.add('hidden'));
+            const target = document.getElementById(`settings-tab-${subTabKey}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+                btn.className = "settings-tab-btn text-slate-400 hover:text-white px-2.5 py-1 rounded-lg font-bold text-[11px]";
+            });
+            const activeBtn = document.getElementById(`subnav-settings-${subTabKey}`);
+            if (activeBtn) {
+                activeBtn.className = "settings-tab-btn bg-chaska-600 text-white px-2.5 py-1 rounded-lg font-bold text-[11px]";
+            }
+        }
 
         function loadLocalCachedState() {
             const saved = localStorage.getItem('chaska_pos_unified_v3');
@@ -1592,6 +1737,10 @@
                 renderPosCategoryPills();
                 renderPosCatalog();
                 renderPosOrderTicket();
+                // En móviles, mostrar la carta para que el mozo pueda agregar platos
+                if (window.innerWidth < 1024) {
+                    setPosMobileView(currentPosMobileView || 'catalog');
+                }
             }
             if (tabKey === 'menu') renderMenuDishesTable();
             if (tabKey === 'drinks') renderDrinksTable();
@@ -1603,107 +1752,76 @@
             lucide.createIcons();
         }
 
-        function switchSettingsTab(subKey) {
-            document.querySelectorAll('.settings-subpanel').forEach(p => p.classList.add('hidden'));
-            const target = document.getElementById(`settings-tab-${subKey}`);
-            if (target) target.classList.remove('hidden');
+        /* MANEJO DE VISTA RESPONSIVA EN COMANDERO (MÓVIL) */
+        function setPosMobileView(mode) {
+            currentPosMobileView = mode;
+            const catalogCol = document.getElementById('pos-catalog-column');
+            const ticketCol = document.getElementById('pos-ticket-column');
+            const btnCat = document.getElementById('pos-m-btn-catalog');
+            const btnTick = document.getElementById('pos-m-btn-ticket');
+            const floatBar = document.getElementById('pos-mobile-floating-bar');
 
-            document.querySelectorAll('.settings-tab-btn').forEach(b => {
-                b.classList.remove('bg-chaska-600', 'text-white');
-                b.classList.add('text-slate-400');
-            });
-            const btn = document.getElementById(`subnav-settings-${subKey}`);
-            if (btn) {
-                btn.classList.add('bg-chaska-600', 'text-white');
-                btn.classList.remove('text-slate-400');
+            if (!catalogCol || !ticketCol) return;
+
+            if (window.innerWidth >= 1024) {
+                // En pantallas grandes (computadora/tablet horizontal) siempre se ven ambos
+                catalogCol.classList.remove('hidden');
+                ticketCol.classList.remove('hidden');
+                ticketCol.classList.add('flex');
+                if (floatBar) floatBar.classList.add('hidden');
+                return;
             }
-            lucide.createIcons();
-        }
 
-        /* GESTIÓN DE SEDES / RESTAURANTES */
-        function toggleBranchDropdown() {
-            const dd = document.getElementById('branch-dropdown');
-            if (dd) dd.classList.toggle('hidden');
-        }
+            if (mode === 'catalog') {
+                catalogCol.classList.remove('hidden');
+                catalogCol.classList.add('flex');
+                ticketCol.classList.add('hidden');
+                ticketCol.classList.remove('flex');
 
-        function switchBranch(branchId) {
-            if (!multiState.branches[branchId]) return;
-            multiState.activeBranchId = branchId;
-            appState = multiState.branches[branchId];
-            ensureBranchCollectionsExist(appState);
-            saveLocalCachedState();
-            toggleBranchDropdown();
+                if (btnCat) btnCat.className = "flex-1 py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-chaska-600 text-white shadow-sm";
+                if (btnTick) btnTick.className = "flex-1 py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-slate-950 text-slate-300 border border-slate-800";
 
-            if (db) {
-                initGoogleCloudRealtime();
+                updatePosMobileFloatingBar();
             } else {
-                initApp();
+                catalogCol.classList.add('hidden');
+                catalogCol.classList.remove('flex');
+                ticketCol.classList.remove('hidden');
+                ticketCol.classList.add('flex');
+
+                if (btnCat) btnCat.className = "flex-1 py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-slate-950 text-slate-300 border border-slate-800";
+                if (btnTick) btnTick.className = "flex-1 py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-chaska-600 text-white shadow-sm";
+
+                if (floatBar) floatBar.classList.add('hidden');
             }
-            showToast(`Cambiado a ${appState.name}`, "info");
-        }
-
-        /* IDENTIFICACIÓN DE USUARIO CON PIN */
-        function openUserLoginModal() {
-            pinTargetUser = null;
-            currentPinInput = "";
-            document.getElementById('login-users-step').classList.remove('hidden');
-            document.getElementById('login-pin-step').classList.add('hidden');
-            document.getElementById('login-modal-step-label').innerText = "Selecciona tu usuario";
-
-            const container = document.getElementById('login-users-step');
-            container.innerHTML = '';
-
-            (appState.users || []).forEach(u => {
-                const btn = document.createElement('button');
-                btn.className = "w-full flex items-center justify-between p-2.5 rounded-2xl bg-slate-950 border border-slate-800 hover:border-chaska-500/50 text-left transition";
-                btn.onclick = () => selectUserToAuthenticate(u);
-                btn.innerHTML = `
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center font-bold text-chaska-400 text-xs">
-                            ${u.name.substring(0, 2).toUpperCase()}
-                        </div>
-                        <div>
-                            <span class="font-extrabold text-white text-xs block">${u.name}</span>
-                            <span class="text-[10px] text-slate-400">${u.role}</span>
-                        </div>
-                    </div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500"></i>
-                `;
-                container.appendChild(btn);
-            });
-
-            document.getElementById('modal-user-login').classList.remove('hidden');
             lucide.createIcons();
         }
 
-        function closeUserLoginModal() {
-            document.getElementById('modal-user-login').classList.add('hidden');
-        }
+        function updatePosMobileFloatingBar() {
+            const floatBar = document.getElementById('pos-mobile-floating-bar');
+            if (!floatBar || window.innerWidth >= 1024 || currentPosMobileView !== 'catalog') {
+                if (floatBar) floatBar.classList.add('hidden');
+                return;
+            }
 
-        function selectUserToAuthenticate(user) {
-            pinTargetUser = user;
-            currentPinInput = "";
-            updatePinDots();
-            document.getElementById('login-users-step').classList.add('hidden');
-            document.getElementById('login-pin-step').classList.remove('hidden');
-            document.getElementById('login-modal-step-label').innerText = `Ingresa PIN para ${user.name}`;
-        }
+            const table = (appState.tables || []).find(t => t.id === appState.selectedTableId);
+            const order = getCurrentOrder();
+            const totalCount = order ? order.items.reduce((acc, i) => acc + i.qty, 0) : 0;
+            const subtotal = order ? order.items.reduce((acc, i) => acc + (i.price * i.qty), 0) : 0;
 
-        function backToUserSelectStep() {
-            pinTargetUser = null;
-            currentPinInput = "";
-            document.getElementById('login-users-step').classList.remove('hidden');
-            document.getElementById('login-pin-step').classList.add('hidden');
-            document.getElementById('login-modal-step-label').innerText = "Selecciona tu usuario";
-        }
+            const elCount = document.getElementById('pos-m-float-count');
+            const elTable = document.getElementById('pos-m-float-table');
+            const elTotal = document.getElementById('pos-m-float-total');
+            const elTabTitle = document.getElementById('pos-m-ticket-tab-title');
 
-        function pressPinKey(num) {
-            if (currentPinInput.length >= 4) return;
-            currentPinInput += num;
-            updatePinDots();
+            if (elCount) elCount.innerText = totalCount;
+            if (elTable) elTable.innerText = table ? `${table.number}` : 'Mesa';
+            if (elTotal) elTotal.innerText = `$${subtotal.toLocaleString('es-AR')}`;
+            if (elTabTitle) elTabTitle.innerText = `🧾 Comanda (${totalCount}) • $${subtotal.toLocaleString('es-AR')}`;
 
-            if (currentPinInput.length === 4) {
-                setTimeout(verifyPinAndLogin, 150);
+            if (totalCount > 0) {
+                floatBar.classList.remove('hidden');
+            } else {
+                floatBar.classList.add('hidden');
             }
         }
 
@@ -2106,6 +2224,9 @@
             renderTables(appState.activeZoneFilter || 'all');
             updatePosTableSelector();
             switchTab('pos');
+            
+            // En celular, al entrar a una mesa se abre directo la Carta para empezar a agregar platos
+            setPosMobileView('catalog');
             renderPosOrderTicket();
         }
 
@@ -2283,6 +2404,8 @@
             saveState();
             renderPosOrderTicket();
             renderTables(appState.activeZoneFilter || 'all');
+            updatePosMobileFloatingBar();
+            showToast(`+1 ${product.name}`, "info");
         }
 
         function renderPosOrderTicket() {
@@ -2518,6 +2641,8 @@
             if (elTip) elTip.innerText = `$${tip.toLocaleString('es-AR')}`;
             if (elTot) elTot.innerText = `$${total.toLocaleString('es-AR')}`;
             if (elTipPercent) elTipPercent.innerText = (appState.settings && appState.settings.tipPercentage) || 10;
+
+            updatePosMobileFloatingBar();
         }
 
         /* PRE-CUENTA TÉRMICA & COBROS */
@@ -4014,6 +4139,8 @@
         }
 
         Object.assign(window, {
+            setPosMobileView,
+            updatePosMobileFloatingBar,
             switchBranch,
             toggleBranchDropdown,
             openUserLoginModal,
