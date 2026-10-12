@@ -300,19 +300,19 @@
             <div id="view-pos" class="view-panel hidden h-full flex flex-col lg:flex-row overflow-hidden relative">
                 
                 <!-- CONMUTADOR TÁCTIL EXCLUSIVO PARA CELULARES -->
-                <div class="lg:hidden bg-slate-900/95 border-b border-slate-800 p-1.5 flex gap-1 shrink-0 z-20">
+                <div class="lg:hidden bg-slate-900/95 border-b border-slate-800 p-1.5 flex gap-1.5 shrink-0 z-20">
                     <button onclick="setPosMobileView('catalog')" id="pos-m-btn-catalog" class="flex-1 py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-chaska-600 text-white shadow-sm">
                         <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
                         <span>🍽️ Carta (Agregar)</span>
                     </button>
                     <button onclick="setPosMobileView('ticket')" id="pos-m-btn-ticket" class="flex-1 py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-slate-950 text-slate-300 border border-slate-800">
                         <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
-                        <span id="pos-m-ticket-tab-title">🧾 Comanda ($0)</span>
+                        <span id="pos-m-ticket-tab-title">🧾 Comanda & Cobro</span>
                     </button>
                 </div>
 
                 <!-- COLUMNA 1: CATÁLOGO DE PLATOS Y BEBIDAS -->
-                <div id="pos-catalog-column" class="flex-1 flex flex-col h-full bg-slate-950 border-r border-slate-800 overflow-hidden">
+                <div id="pos-catalog-column" class="flex-1 min-h-0 flex flex-col w-full bg-slate-950 lg:border-r border-slate-800 overflow-hidden relative">
                     <div class="p-2.5 sm:p-3.5 border-b border-slate-800 space-y-2 shrink-0">
                         <div class="flex items-center justify-between gap-2">
                             <div class="relative flex-1">
@@ -338,27 +338,32 @@
                         <div class="flex gap-1 overflow-x-auto pb-1" id="pos-category-pills"></div>
                     </div>
 
-                    <div id="pos-catalog-grid" class="flex-1 p-2.5 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 overflow-y-auto align-content-start pb-28 lg:pb-4"></div>
+                    <div id="pos-catalog-grid" class="flex-1 p-2.5 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 overflow-y-auto align-content-start pb-24 lg:pb-4"></div>
 
                     <!-- BARRA FLOTANTE EN MÓVIL AL ESTAR EN LA CARTA -->
-                    <div id="pos-mobile-floating-bar" class="lg:hidden absolute bottom-14 left-3 right-3 bg-chaska-600 hover:bg-chaska-500 text-white p-3 rounded-2xl shadow-2xl flex items-center justify-between z-30 transition cursor-pointer active:scale-95 border border-chaska-400/40" onclick="setPosMobileView('ticket')">
-                        <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-xl bg-black/25 flex items-center justify-center font-black text-xs" id="pos-m-float-count">0</span>
-                            <div class="text-left leading-tight">
-                                <span class="font-extrabold text-xs block" id="pos-m-float-table">Mesa 01</span>
-                                <span class="text-[10px] text-white/80">Toca para revisar y cobrar</span>
+                    <div id="pos-mobile-floating-bar" class="lg:hidden absolute bottom-3 left-2.5 right-2.5 bg-slate-900/95 backdrop-blur border border-chaska-500/40 text-white p-2.5 rounded-2xl shadow-2xl flex items-center justify-between z-30 transition cursor-pointer active:scale-95">
+                        <div onclick="setPosMobileView('ticket')" class="flex items-center gap-2 flex-1 min-w-0 pr-2">
+                            <span class="w-8 h-8 rounded-xl bg-chaska-600 flex items-center justify-center font-black text-xs shrink-0" id="pos-m-float-count">0</span>
+                            <div class="text-left leading-tight truncate">
+                                <span class="font-extrabold text-xs block text-white truncate" id="pos-m-float-table">Mesa 01</span>
+                                <span class="font-black text-xs text-chaska-400 font-mono" id="pos-m-float-total">$0</span>
                             </div>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="font-black text-sm font-mono" id="pos-m-float-total">$0</span>
-                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button onclick="openPreBillModal()" title="Pre-cuenta rápida" class="bg-slate-800 hover:bg-slate-700 text-amber-300 px-2.5 py-1.5 rounded-xl text-xs font-bold border border-amber-500/30 flex items-center gap-1">
+                                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="setPosMobileView('ticket')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1 shadow-lg shadow-emerald-600/30">
+                                <span>Cobrar</span>
+                                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- COLUMNA 2: TICKET DE COMANDA -->
-                <div id="pos-ticket-column" class="hidden lg:flex w-full lg:w-96 bg-slate-900 flex-col h-full shrink-0 border-l border-slate-800">
-                    <div class="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-900/90">
+                <div id="pos-ticket-column" class="hidden lg:flex w-full lg:w-96 bg-slate-900 flex-col flex-1 min-h-0 lg:h-full lg:flex-none border-l border-slate-800 overflow-hidden">
+                    <div class="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-900/90 shrink-0">
                         <div>
                             <div class="flex items-center gap-2">
                                 <h3 class="font-extrabold text-white text-sm sm:text-base" id="pos-ticket-table-title">Mesa 01</h3>
@@ -379,10 +384,10 @@
                         </div>
                     </div>
 
-                    <div id="pos-ticket-items" class="flex-1 overflow-y-auto p-3 space-y-2 pb-24 lg:pb-3"></div>
+                    <div id="pos-ticket-items" class="flex-1 min-h-0 overflow-y-auto p-3 space-y-2"></div>
 
-                    <!-- TOTALES DEL TICKET -->
-                    <div class="p-3.5 bg-slate-950 border-t border-slate-800 space-y-2 shrink-0">
+                    <!-- TOTALES DEL TICKET Y BOTONES DE COBRO SIEMPRE VISIBLES -->
+                    <div class="p-3 bg-slate-950 border-t border-slate-800 space-y-2 shrink-0 z-10 shadow-2xl">
                         <div class="space-y-1 text-xs text-slate-300">
                             <div class="flex justify-between">
                                 <span class="text-slate-400">Subtotal</span>
@@ -395,14 +400,14 @@
                                 </label>
                                 <span id="pos-tip" class="font-semibold text-emerald-400 font-mono">$0</span>
                             </div>
-                            <div class="border-t border-slate-800 pt-1.5 flex justify-between items-center text-sm font-bold text-white">
+                            <div class="border-t border-slate-800 pt-1 flex justify-between items-center text-sm font-bold text-white">
                                 <span>TOTAL</span>
                                 <span id="pos-total" class="text-chaska-400 text-lg font-black font-mono">$0</span>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-3 gap-2 pt-1">
-                            <button onclick="openPreBillModal()" class="col-span-1 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1 transition border border-amber-500/20">
+                        <div class="grid grid-cols-3 gap-2 pt-0.5">
+                            <button onclick="openPreBillModal()" class="col-span-1 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1 transition border border-amber-500/20 active:scale-95">
                                 <i data-lucide="printer" class="w-3.5 h-3.5"></i> Pre-cuenta
                             </button>
                             <button onclick="openCheckoutModal()" class="col-span-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg shadow-emerald-600/20">
@@ -1798,11 +1803,6 @@
 
         function updatePosMobileFloatingBar() {
             const floatBar = document.getElementById('pos-mobile-floating-bar');
-            if (!floatBar || window.innerWidth >= 1024 || currentPosMobileView !== 'catalog') {
-                if (floatBar) floatBar.classList.add('hidden');
-                return;
-            }
-
             const table = (appState.tables || []).find(t => t.id === appState.selectedTableId);
             const order = getCurrentOrder();
             const totalCount = order ? order.items.reduce((acc, i) => acc + i.qty, 0) : 0;
@@ -1817,6 +1817,11 @@
             if (elTable) elTable.innerText = table ? `${table.number}` : 'Mesa';
             if (elTotal) elTotal.innerText = `$${subtotal.toLocaleString('es-AR')}`;
             if (elTabTitle) elTabTitle.innerText = `🧾 Comanda (${totalCount}) • $${subtotal.toLocaleString('es-AR')}`;
+
+            if (!floatBar || window.innerWidth >= 1024 || currentPosMobileView !== 'catalog') {
+                if (floatBar) floatBar.classList.add('hidden');
+                return;
+            }
 
             if (totalCount > 0) {
                 floatBar.classList.remove('hidden');
@@ -2203,6 +2208,7 @@
             const table = (appState.tables || []).find(t => t.id === tableId);
             if (!table) return;
 
+            const wasOccupiedWithOrder = table.status !== 'free' && table.orderId;
             appState.selectedTableId = tableId;
 
             if (table.status === 'free') {
@@ -2225,8 +2231,14 @@
             updatePosTableSelector();
             switchTab('pos');
             
-            // En celular, al entrar a una mesa se abre directo la Carta para empezar a agregar platos
-            setPosMobileView('catalog');
+            // En móvil: si la mesa ya tenía consumo abre la comanda para ver Pre-cuenta/Cobro; si es nueva abre la carta
+            if (window.innerWidth < 1024) {
+                if (wasOccupiedWithOrder) {
+                    setPosMobileView('ticket');
+                } else {
+                    setPosMobileView('catalog');
+                }
+            }
             renderPosOrderTicket();
         }
 
@@ -2468,8 +2480,8 @@
                         <span class="font-black text-xs font-mono text-slate-200 shrink-0">$${(item.price * item.qty).toLocaleString('es-AR')}</span>
                     </div>
 
-                    <input type="text" value="${item.notes || ''}" placeholder="Nota cocina (ej: sin sal, punto jugoso)..."
-                        onchange="updateItemNote(${idx}, this.value)"
+                    <input type="text" value="${item.notes || ''}" placeholder="Detalle o nota (ej: sin sal, a punto, con hielo)..."
+                        oninput="updateItemNote(${idx}, this.value)"
                         class="w-full bg-slate-900 border border-slate-800 rounded-lg text-[10px] px-2 py-1 text-slate-300 focus:outline-none focus:border-chaska-500">
 
                     <div class="flex justify-between items-center pt-1 border-t border-slate-900">
@@ -2663,9 +2675,12 @@
             const user = (appState.users || []).find(u => u.id === appState.currentUserId) || { name: 'Mozo' };
 
             const itemsRows = order.items.map(i => `
-                <div class="flex justify-between py-0.5 border-b border-dashed border-slate-300">
-                    <span class="truncate max-w-[170px]">${i.qty}x ${i.name} ${i.discountLabel ? `(${i.discountLabel})` : ''}</span>
-                    <span class="font-bold font-mono">$${(i.price * i.qty).toLocaleString('es-AR')}</span>
+                <div class="py-1 border-b border-dashed border-slate-300">
+                    <div class="flex justify-between items-start">
+                        <span class="font-bold text-slate-900 leading-tight">${i.qty}x ${i.name} ${i.discountLabel ? `<span class="text-[10px] text-emerald-700 font-semibold">(${i.discountLabel})</span>` : ''}</span>
+                        <span class="font-bold font-mono shrink-0 pl-2">$${(i.price * i.qty).toLocaleString('es-AR')}</span>
+                    </div>
+                    ${i.notes ? `<div class="text-[10px] text-slate-700 italic pl-3 mt-0.5 leading-tight font-sans">↳ Detalle: ${i.notes}</div>` : ''}
                 </div>
             `).join('');
 
