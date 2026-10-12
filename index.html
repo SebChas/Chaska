@@ -1629,19 +1629,38 @@
                 // Suscripción reactiva en tiempo real por sucursal
                 const docRef = db.collection('chaska_pos_branches').doc(multiState.activeBranchId);
                 docRef.onSnapshot((doc) => {
+                    // Evitar que el rebote de escritura local reinicie la interfaz mientras se escribe
+                    if (doc.metadata && doc.metadata.hasPendingWrites) {
+                        return;
+                    }
                     if (doc.exists) {
-                        // Si el operador está escribiendo una nota en el celular, evitar destruir el input activo
-                        const isTypingNote = document.activeElement && document.activeElement.classList.contains('pos-item-note-input');
+                        const activeEl = document.activeElement;
+                        const isUserTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+
                         isSyncingFromCloud = true;
                         const cloudData = doc.data();
+
+                        // Si el mozo está escribiendo en el teléfono, preservar exactamente lo que tiene en pantalla
+                        if (isUserTyping && activeEl.dataset && activeEl.dataset.noteIndex !== undefined) {
+                            const typingIdx = parseInt(activeEl.dataset.noteIndex);
+                            const curOrder = (cloudData.orders || []).find(o => o.tableId === appState.selectedTableId);
+                            if (curOrder && curOrder.items && curOrder.items[typingIdx]) {
+                                curOrder.items[typingIdx].notes = activeEl.value;
+                            }
+                        }
+
                         multiState.branches[multiState.activeBranchId] = cloudData;
                         appState = cloudData;
                         ensureBranchCollectionsExist(appState);
                         saveLocalCachedState();
                         isSyncingFromCloud = false;
-                        if (!isTypingNote) {
-                            initApp();
+
+                        // Si el usuario está tipeando activamente en el teclado, no destruir su campo
+                        if (isUserTyping) {
+                            return;
                         }
+
+                        initApp();
                     } else {
                         // Guardar datos iniciales si es la primera vez
                         docRef.set(appState).catch(e => console.error("Error inicializando nube:", e));
@@ -2484,10 +2503,23 @@
                         <span class="font-black text-xs font-mono text-slate-200 shrink-0">$${(item.price * item.qty).toLocaleString('es-AR')}</span>
                     </div>
 
-                    <input type="text" value="${item.notes || ''}" placeholder="Detalle o nota (ej: sin sal, a punto, con hielo)..."
-                        oninput="updateItemNote(${idx}, this.value)"
-                        onblur="saveNoteImmediately(${idx}, this.value)"
-                        class="pos-item-note-input w-full bg-slate-900 border border-slate-800 rounded-lg text-[10px] px-2 py-1 text-slate-300 focus:outline-none focus:border-chaska-500">
+                    <div class="space-y-1">
+                        <input type="text" value="${item.notes || ''}" placeholder="Nota de cocina (ej: sin sal, a punto)..."
+                            data-note-index="${idx}"
+                            oninput="handleItemNoteInput(${idx}, this.value)"
+                            onblur="handleItemNoteBlur(${idx}, this.value)"
+                            onkeydown="if(event.key==='Enter') this.blur();"
+                            class="pos-item-note-input w-full bg-slate-900 border border-slate-800 focus:border-chaska-500 rounded-lg text-xs px-2.5 py-1.5 text-slate-200 outline-none transition">
+
+                        <div class="flex flex-wrap items-center gap-1">
+                            <span class="text-[9px] text-slate-500 font-semibold mr-0.5">Rápidos:</span>
+                            <button type="button" onclick="appendItemNote(${idx}, 'Sin sal')" class="text-[9px] bg-slate-900 hover:bg-slate-800 active:bg-chaska-600 text-slate-400 hover:text-white px-1.5 py-0.5 rounded border border-slate-800 transition">+ Sin sal</button>
+                            <button type="button" onclick="appendItemNote(${idx}, 'A punto')" class="text-[9px] bg-slate-900 hover:bg-slate-800 active:bg-chaska-600 text-slate-400 hover:text-white px-1.5 py-0.5 rounded border border-slate-800 transition">+ A punto</button>
+                            <button type="button" onclick="appendItemNote(${idx}, 'Bien cocido')" class="text-[9px] bg-slate-900 hover:bg-slate-800 active:bg-chaska-600 text-slate-400 hover:text-white px-1.5 py-0.5 rounded border border-slate-800 transition">+ Bien cocido</button>
+                            <button type="button" onclick="appendItemNote(${idx}, 'Con hielo')" class="text-[9px] bg-slate-900 hover:bg-slate-800 active:bg-chaska-600 text-slate-400 hover:text-white px-1.5 py-0.5 rounded border border-slate-800 transition">+ Con hielo</button>
+                            <button type="button" onclick="appendItemNote(${idx}, 'Sin hielo')" class="text-[9px] bg-slate-900 hover:bg-slate-800 active:bg-chaska-600 text-slate-400 hover:text-white px-1.5 py-0.5 rounded border border-slate-800 transition">+ Sin hielo</button>
+                        </div>
+                    </div>
 
                     <div class="flex justify-between items-center pt-1 border-t border-slate-900">
                         <div class="flex items-center gap-1">
@@ -2531,30 +2563,44 @@
             renderTables(appState.activeZoneFilter || 'all');
         }
 
-        let noteDebounceTimer = null;
         function updateItemNote(idx, note) {
             const order = getCurrentOrder();
-            if (order && order.items[idx]) {
-                // Se guarda en memoria sin trim() para permitir escribir espacios con naturalidad
-                order.items[idx].notes = note;
-                multiState.branches[multiState.activeBranchId] = appState;
-                saveLocalCachedState();
-
-                // Pausa antes de mandar a la nube para no colgar el teclado del teléfono
-                clearTimeout(noteDebounceTimer);
-                noteDebounceTimer = setTimeout(() => {
-                    saveState();
-                }, 1000);
+            if (order && order.items && order.items[idx]) {
+                order.items[idx].notes = (note || '').trim();
+                saveState();
+                renderPosOrderTicket();
             }
         }
 
-        function saveNoteImmediately(idx, note) {
-            clearTimeout(noteDebounceTimer);
+        function handleItemNoteInput(idx, note) {
             const order = getCurrentOrder();
-            if (order && order.items[idx]) {
+            if (order && order.items && order.items[idx]) {
+                // Guarda en memoria inmediatamente para que el texto nunca se pierda ni se reinicie el teclado
+                order.items[idx].notes = note;
+                multiState.branches[multiState.activeBranchId] = appState;
+                saveLocalCachedState();
+            }
+        }
+
+        function handleItemNoteBlur(idx, note) {
+            const order = getCurrentOrder();
+            if (order && order.items && order.items[idx]) {
                 order.items[idx].notes = (note || '').trim();
                 saveState();
             }
+        }
+
+        function appendItemNote(idx, tag) {
+            const order = getCurrentOrder();
+            if (!order || !order.items || !order.items[idx]) return;
+            const current = (order.items[idx].notes || '').trim();
+            if (!current) {
+                order.items[idx].notes = tag;
+            } else if (!current.includes(tag)) {
+                order.items[idx].notes = `${current}, ${tag}`;
+            }
+            saveState();
+            renderPosOrderTicket();
         }
 
         /* MODAL DE DESCUENTOS POR ÍTEM */
@@ -4197,7 +4243,6 @@
             changeItemQty,
             removeItemFromOrder,
             updateItemNote,
-            saveNoteImmediately,
             openItemDiscountModal,
             closeItemDiscountModal,
             applyQuickDiscount,
@@ -4268,7 +4313,10 @@
             handleSaveDrinkCategory,
             deleteDrinkCategory,
             handleSaveStorage,
-            deleteStorage
+            deleteStorage,
+            handleItemNoteInput,
+            handleItemNoteBlur,
+            appendItemNote
         });
 
         window.onload = function() {
