@@ -1630,6 +1630,8 @@
                 const docRef = db.collection('chaska_pos_branches').doc(multiState.activeBranchId);
                 docRef.onSnapshot((doc) => {
                     if (doc.exists) {
+                        // Si el operador está escribiendo una nota en el celular, evitar destruir el input activo
+                        const isTypingNote = document.activeElement && document.activeElement.classList.contains('pos-item-note-input');
                         isSyncingFromCloud = true;
                         const cloudData = doc.data();
                         multiState.branches[multiState.activeBranchId] = cloudData;
@@ -1637,7 +1639,9 @@
                         ensureBranchCollectionsExist(appState);
                         saveLocalCachedState();
                         isSyncingFromCloud = false;
-                        initApp();
+                        if (!isTypingNote) {
+                            initApp();
+                        }
                     } else {
                         // Guardar datos iniciales si es la primera vez
                         docRef.set(appState).catch(e => console.error("Error inicializando nube:", e));
@@ -2482,7 +2486,8 @@
 
                     <input type="text" value="${item.notes || ''}" placeholder="Detalle o nota (ej: sin sal, a punto, con hielo)..."
                         oninput="updateItemNote(${idx}, this.value)"
-                        class="w-full bg-slate-900 border border-slate-800 rounded-lg text-[10px] px-2 py-1 text-slate-300 focus:outline-none focus:border-chaska-500">
+                        onblur="saveNoteImmediately(${idx}, this.value)"
+                        class="pos-item-note-input w-full bg-slate-900 border border-slate-800 rounded-lg text-[10px] px-2 py-1 text-slate-300 focus:outline-none focus:border-chaska-500">
 
                     <div class="flex justify-between items-center pt-1 border-t border-slate-900">
                         <div class="flex items-center gap-1">
@@ -2526,10 +2531,28 @@
             renderTables(appState.activeZoneFilter || 'all');
         }
 
+        let noteDebounceTimer = null;
         function updateItemNote(idx, note) {
             const order = getCurrentOrder();
             if (order && order.items[idx]) {
-                order.items[idx].notes = note.trim();
+                // Se guarda en memoria sin trim() para permitir escribir espacios con naturalidad
+                order.items[idx].notes = note;
+                multiState.branches[multiState.activeBranchId] = appState;
+                saveLocalCachedState();
+
+                // Pausa antes de mandar a la nube para no colgar el teclado del teléfono
+                clearTimeout(noteDebounceTimer);
+                noteDebounceTimer = setTimeout(() => {
+                    saveState();
+                }, 1000);
+            }
+        }
+
+        function saveNoteImmediately(idx, note) {
+            clearTimeout(noteDebounceTimer);
+            const order = getCurrentOrder();
+            if (order && order.items[idx]) {
+                order.items[idx].notes = (note || '').trim();
                 saveState();
             }
         }
@@ -4174,6 +4197,7 @@
             changeItemQty,
             removeItemFromOrder,
             updateItemNote,
+            saveNoteImmediately,
             openItemDiscountModal,
             closeItemDiscountModal,
             applyQuickDiscount,
